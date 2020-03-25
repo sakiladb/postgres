@@ -8,11 +8,19 @@ By default these are created:
 - username / password: `sakila` / `p_ssW0rd`
 
 
-To start:
 
 ```shell script
-docker run -p 5432:5432 -d sakiladb/postgres
+docker run -p 5432:5432 -d sakiladb/postgres:latest
 ```
+
+Or use a specific version of postgres (see all available image tags
+on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres/tags).)
+
+```shell script
+docker run -p 5432:5432 -d sakiladb/postgres:9.6
+```
+
+
 
 Note that it may take some time for the container to boot up.
 

@@ -1,4 +1,4 @@
-FROM postgres:12.2-alpine AS sakila-base
+FROM postgres:latest AS sakila-base
 ENV POSTGRES_PASSWORD="p_ssW0rd"
 ENV POSTGRES_DB="sakila"
 COPY ./postgres-sakila-schema.sql /docker-entrypoint-initdb.d/step_1.sql
