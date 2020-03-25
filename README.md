@@ -1,11 +1,11 @@
 # sakiladb/postgres
 
 Postgres docker image preloaded with the [Sakila](https://dev.mysql.com/doc/sakila/en/) example
-database (by way of [jooq](https://www.jooq.org/sakila)).
+database (by way of [jooq](https://www.jooq.org/sakila)). See on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres).
 
 By default these are created:
 - database: `sakila`
-- user/pass: `sakila` / `p_ssW0rd`
+- username / password: `sakila` / `p_ssW0rd`
 
 
 To start:
@@ -14,10 +14,12 @@ To start:
 docker run -p 5432:5432 -d sakiladb/postgres
 ```
 
-Note that it may take some time for the container to boot up. Then Verify that all is well:
+Note that it may take some time for the container to boot up.
+
+To verify that all is well:
 
 ```shell script
-$ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM actor LIMIT 5'                                     master ✱
+$ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM actor LIMIT 5'
  actor_id | first_name |  last_name   |     last_update
 ----------+------------+--------------+---------------------
         1 | PENELOPE   | GUINESS      | 2006-02-15 04:34:33
