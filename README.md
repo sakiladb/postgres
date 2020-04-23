@@ -30,6 +30,9 @@ Eventually the container's docker logs will show:
 sakiladb/postgres has successfully initialized.
 ```
 
+Note that even after this message is logged, it may take another few moments for
+it to become available (due to a final server restart etc).
+
 
 To verify that all is well:
 
