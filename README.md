@@ -1,7 +1,8 @@
 # sakiladb/postgres
 
 Postgres docker image preloaded with the [Sakila](https://dev.mysql.com/doc/sakila/en/) example
-database (by way of [jooq](https://www.jooq.org/sakila)). See on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres).
+database (by way of [jooq](https://www.jooq.org/sakila)).
+See on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres).
 
 By default these are created:
 - database: `sakila`
@@ -23,6 +24,12 @@ docker run -p 5432:5432 -d sakiladb/postgres:9.6
 
 
 Note that it may take some time for the container to boot up.
+Eventually the container's docker logs will show:
+
+```
+sakiladb/postgres has successfully initialized.
+```
+
 
 To verify that all is well:
 
