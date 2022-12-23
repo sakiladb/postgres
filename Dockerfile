@@ -1,4 +1,4 @@
-FROM postgres:11-alpine as dumper
+FROM postgres:12-alpine as dumper
 
 COPY ./1-postgres-sakila-schema.sql /docker-entrypoint-initdb.d/step_1.sql
 COPY ./2-postgres-sakila-insert-data.sql /docker-entrypoint-initdb.d/step_2.sql
@@ -15,6 +15,6 @@ ENV PGDATA=/data
 RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 
 # final build stage
-FROM postgres:11-alpine
+FROM postgres:12-alpine
 
 COPY --from=dumper /data $PGDATA
