@@ -18,21 +18,8 @@ Or use a specific version of postgres (see all available image tags
 on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres/tags).)
 
 ```shell script
-docker run -p 5432:5432 -d sakiladb/postgres:9.6
+docker run -p 5432:5432 -d sakiladb/postgres:15
 ```
-
-
-
-Note that it may take some time for the container to boot up.
-Eventually the container's docker logs will show:
-
-```
-sakiladb/postgres has successfully initialized.
-```
-
-Note that even after this message is logged, it may take another few moments for
-it to become available (due to a final server restart etc).
-
 
 To verify that all is well:
 
