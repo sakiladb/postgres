@@ -16,6 +16,6 @@ ENV PGDATA=/data
 RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 
 # final build stage
-FROM postgres:14-alpine
+FROM postgres:15-alpine
 
 COPY --from=dumper /data $PGDATA
