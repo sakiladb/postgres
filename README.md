@@ -33,3 +33,9 @@ $ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM ac
         4 | JENNIFER   | DAVIS        | 2006-02-15 04:34:33
         5 | JOHNNY     | LOLLOBRIGIDA | 2006-02-15 04:34:33
 ```
+
+## Releasing a new version
+
+Maintainers: each Postgres major version has a `postgres-N` branch, and a release is
+published by pushing a `vN.0.0` tag. See [CLAUDE.md](./CLAUDE.md) for the full,
+repeatable procedure.
