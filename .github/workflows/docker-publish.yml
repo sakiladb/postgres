@@ -28,26 +28,30 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
+      # Pinned to v3 (cosign v2.x) so we get the current Sigstore TUF root.
+      # The old v2.8.1 installer shipped cosign v1.13.1, which embeds a
+      # rotated-out TUF key and fails Fulcio cert verification with
+      # "updating to TUF remote mirror: invalid key".
       - name: Install cosign
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
         uses: sigstore/cosign-installer@v3
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
         with:
           platforms: linux/amd64,linux/arm64
 
       # Login against Docker Hub
       # https://github.com/docker/login-action
       - name: Log into Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY_DOCKERHUB }}
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -55,7 +59,7 @@ jobs:
 
       # Login against GitHub Container Registry
       - name: Log into GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
@@ -65,7 +69,7 @@ jobs:
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: |
             ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME }}
@@ -78,7 +82,7 @@ jobs:
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
@@ -96,8 +100,10 @@ jobs:
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
         if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
+        # cosign v2 keyless signing uses the GHA OIDC token automatically
+        # (no COSIGN_EXPERIMENTAL needed). --yes skips v2's interactive
+        # confirmation prompt, which would otherwise hang in CI.
         env:
-          COSIGN_EXPERIMENTAL: "true"
-        # This step uses the identity token to provision an ephemeral certificate
-        # against the sigstore community Fulcio instance.
-        run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
+          TAGS: ${{ steps.meta.outputs.tags }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: echo "$TAGS" | xargs -I {} cosign sign --yes {}@"$DIGEST"
