@@ -1710,3 +1710,42 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 -- PostgreSQL database dump complete
 --
 
+
+--
+-- sakiladb customizations (not part of the upstream jOOQ postgres-sakila dump).
+-- These align the Postgres image with the other sakiladb variants so that it is
+-- a consistent test fixture: every variant exposes the same 16 tables + 7 views.
+--
+
+--
+-- Name: film_text; Type: TABLE; Schema: public; Owner: postgres
+--
+-- The other sakila datasets (notably MySQL) carry a film_text table. The upstream
+-- Postgres schema instead does full-text search via the film.fulltext tsvector
+-- column, and omits film_text. We add it here for cross-variant parity; it is
+-- populated from film in 3-postgres-sakila-user.sql (after the film data loads).
+--
+
+CREATE TABLE film_text (
+    film_id integer NOT NULL,
+    title character varying(255) NOT NULL,
+    description text,
+    CONSTRAINT film_text_pkey PRIMARY KEY (film_id)
+);
+
+ALTER TABLE public.film_text OWNER TO postgres;
+
+--
+-- Drop the vestigial payment_p2007_* inheritance partitions.
+--
+-- The sakila payment data loads entirely into the parent `payment` table (the
+-- payment_insert_p2007_* routing RULES never match the data's dates), leaving
+-- these partitions empty. Dropping them makes the Postgres table set match the
+-- other variants (16 tables, no partitions). CASCADE also removes the partitions'
+-- indexes, foreign-key constraints, and the parent's payment_insert_p2007_* rules
+-- that target them; the parent `payment` table and its own keys are unaffected.
+--
+
+DROP TABLE payment_p2007_01, payment_p2007_02, payment_p2007_03,
+           payment_p2007_04, payment_p2007_05, payment_p2007_06 CASCADE;
+

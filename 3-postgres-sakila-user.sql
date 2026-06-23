@@ -1,3 +1,8 @@
+-- Populate film_text from film (the table is created in 1-postgres-sakila-schema.sql).
+-- Done here, after 2-postgres-sakila-insert-data.sql has loaded the film rows.
+INSERT INTO film_text (film_id, title, description)
+    SELECT film_id, title, description FROM film;
+
 -- The database dump used the "postgres" user. But we want everything to
 -- be owned by the sakila user.
 ALTER SCHEMA public OWNER TO sakila;
