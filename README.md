@@ -83,7 +83,7 @@ film_category               table  1000   film_id, category_id, last_update
 film_text                   table  1000   film_id, title, description
 inventory                   table  4581   inventory_id, film_id, store_id, last_update
 language                    table  6      language_id, name, last_update
-payment                     table  16049  payment_id, customer_id, staff_id, rental_id, amount, payment_date
+payment                     table  16049  payment_id, customer_id, staff_id, rental_id, amount, payment_date, last_update
 rental                      table  16044  rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update
 staff                       table  2      staff_id, first_name, last_name, address_id, email, store_id, active, username, password, last_update, picture
 store                       table  2      store_id, manager_staff_id, address_id, last_update
@@ -103,7 +103,6 @@ Every sakiladb variant is the same database — the MySQL Sakila, ported via
 few schema details differ from MySQL. The **data is identical** (same row counts); these are schema
 differences:
 
-- **`payment` has no `last_update` column** (MySQL's does).
 - **`address` has no `location` column** — MySQL carries a spatial `GEOMETRY` column there; this
   image has no PostGIS dependency.
 - **Identifiers are lower-case.** Postgres folds unquoted identifiers, so view columns that are
