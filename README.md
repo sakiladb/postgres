@@ -4,6 +4,10 @@ A PostgreSQL Docker image preloaded with the [Sakila](https://dev.mysql.com/doc/
 database (via [jOOQ](https://www.jooq.org/sakila)). One of the
 [`sakiladb`](https://github.com/sakiladb) image family.
 
+These images exist primarily as test fixtures for [`sq`](https://github.com/neilotoole/sq), a
+command-line tool for querying SQL databases and structured data — but they are free for anyone to
+use. See sq's [PostgreSQL driver guide](https://sq.io/docs/drivers/postgres).
+
 Available on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) and
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres).
 
@@ -40,6 +44,21 @@ $ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM ac
         3 | ED         | CHASE        | 2006-02-15 04:34:33
         4 | JENNIFER   | DAVIS        | 2006-02-15 04:34:33
         5 | JOHNNY     | LOLLOBRIGIDA | 2006-02-15 04:34:33
+```
+
+Or add it as a source in [`sq`](https://github.com/neilotoole/sq) ([install](https://sq.io/docs/install)):
+
+```shell
+$ sq add 'postgres://sakila:p_ssW0rd@localhost:5432/sakila' --handle @sakila_pg
+@sakila_pg  postgres  sakila@localhost:5432/sakila
+
+$ sq '@sakila_pg.actor | .[0:5]'
+actor_id  first_name  last_name     last_update
+1         PENELOPE    GUINESS       2006-02-15T04:34:33Z
+2         NICK        WAHLBERG      2006-02-15T04:34:33Z
+3         ED          CHASE         2006-02-15T04:34:33Z
+4         JENNIFER    DAVIS         2006-02-15T04:34:33Z
+5         JOHNNY      LOLLOBRIGIDA  2006-02-15T04:34:33Z
 ```
 
 ## What's inside
