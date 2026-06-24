@@ -1,4 +1,9 @@
-FROM postgres:15-alpine as dumper
+# PostgreSQL major version to build. The CI release workflow overrides this per
+# release, deriving it from the git tag (e.g. v14.0.1 -> 14). The default is the
+# newest version, for convenient local `docker build`.
+ARG PG_VERSION=15
+
+FROM postgres:${PG_VERSION}-alpine AS dumper
 
 COPY ./0-postgres-sakila-setup.sql /docker-entrypoint-initdb.d/step_0.sql
 COPY ./1-postgres-sakila-schema.sql /docker-entrypoint-initdb.d/step_1.sql
@@ -16,6 +21,6 @@ ENV PGDATA=/data
 RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 
 # final build stage
-FROM postgres:15-alpine
+FROM postgres:${PG_VERSION}-alpine
 
 COPY --from=dumper /data $PGDATA

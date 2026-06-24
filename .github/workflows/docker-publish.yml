@@ -2,17 +2,29 @@ name: Docker
 
 on:
   push:
-    branches: [ "master", "postgres-*" ]
-    # Publish semver tags as releases.
+    branches: [ "master" ]
+    # Publish semver tags as releases. The major version to build is derived
+    # from the tag, e.g. v14.0.1 builds PostgreSQL 14 (see the "Determine
+    # PostgreSQL major version" step).
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches: [ "master", "postgres-*" ]
+    branches: [ "master" ]
+  # Manual build of an arbitrary major version (smoke test only, never publishes).
+  workflow_dispatch:
+    inputs:
+      pg_version:
+        description: "PostgreSQL major version to build (e.g. 14). Smoke test, no publish."
+        required: false
+        default: ""
 
 env:
   REGISTRY_DOCKERHUB: docker.io
   REGISTRY_GHCR: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
+  # The newest PostgreSQL major version: the single source of truth for which
+  # release gets the `latest` tag. Bump this when releasing a new newest major.
+  LATEST_MAJOR: "15"
 
 
 jobs:
@@ -29,6 +41,34 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      # Determine which PostgreSQL major version to build:
+      #   - tag push (v14.0.1)        -> the tag's major (14)
+      #   - manual run with an input  -> that input
+      #   - branch push / PR          -> LATEST_MAJOR (build the newest)
+      # The result drives both the build-arg and the `latest` tag decision below,
+      # so the git tag is the single source of truth for a release's version.
+      - name: Determine PostgreSQL major version
+        id: pgver
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ github.event.inputs.pg_version }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            major="$INPUT_VERSION"
+          elif [ "$REF_TYPE" = "tag" ]; then
+            major="${REF_NAME#v}"   # v14.0.1 -> 14.0.1
+            major="${major%%.*}"    # 14.0.1  -> 14
+          else
+            major="$LATEST_MAJOR"
+          fi
+          # Validate: must be digits only (guards against bad input / injection).
+          case "$major" in
+            ''|*[!0-9]*) echo "::error::invalid PostgreSQL major version: '$major'"; exit 1 ;;
+          esac
+          echo "major=${major}" >> "$GITHUB_OUTPUT"
+          echo "Building PostgreSQL major version: ${major}"
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -74,10 +114,15 @@ jobs:
           images: |
             ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME }}
             ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}
+          # Never auto-assign `latest`; emit it explicitly below only for the
+          # newest major. This keeps `latest` stable regardless of tag-push order.
+          flavor: |
+            latest=false
           tags: |
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ github.ref_type == 'tag' && steps.pgver.outputs.major == env.LATEST_MAJOR }}
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
@@ -85,6 +130,8 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          build-args: |
+            PG_VERSION=${{ steps.pgver.outputs.major }}
           push: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

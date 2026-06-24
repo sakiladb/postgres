@@ -41,13 +41,14 @@ populate in `3-postgres-sakila-user.sql`), clearly commented.
 ## How the image is built
 
 *(PostgreSQL-specific.)* `Dockerfile` is a two-stage build that bakes the data into the image so
-there is no initialization cost at container start:
+there is no initialization cost at container start. The base-image version is parameterized by an
+`ARG PG_VERSION` (default = newest), which the release workflow sets per build:
 
-1. **`dumper` stage** — `FROM postgres:N-alpine`, copies the four SQL files into
+1. **`dumper` stage** — `FROM postgres:${PG_VERSION}-alpine`, copies the four SQL files into
    `/docker-entrypoint-initdb.d/`, neuters the entrypoint's `exec "$@"` (so the server doesn't stay
    running), then runs the entrypoint once to initialize the database into `$PGDATA` (`/data`).
-2. **final stage** — `FROM postgres:N-alpine` again, copies the populated `/data` from the dumper
-   stage. The published image ships with Sakila already loaded.
+2. **final stage** — `FROM postgres:${PG_VERSION}-alpine` again, copies the populated `/data` from
+   the dumper stage. The published image ships with Sakila already loaded.
 
 The four init SQL files run in order, as the `sakila` superuser:
 
@@ -64,73 +65,65 @@ The container logs `sakiladb/postgres has successfully initialized.` once `3-…
 
 *(Shared across the `sakiladb` family.)*
 
-- **One long-lived branch per major version** — `postgres-9` … `postgres-15`. Each branch holds the
-  `Dockerfile` pinned to its PostgreSQL version (both `FROM` lines).
-- **Publishing is triggered by pushing a semver tag `vN.0.x`.** `.github/workflows/docker-publish.yml`
-  builds on every branch / PR / tag push, but **only pushes to a registry on `v*.*.*` tags**
-  (`push: ${{ startsWith(github.ref, 'refs/tags/v') … }}`). Branch and PR pushes are build-only
-  smoke tests.
-- Each release tag points to a commit **on its matching `postgres-N` branch** (e.g. `v15.0.0` lives
-  on `postgres-15`).
-- The tag produces the Docker tag **`{{major}}`** (`v15.0.0` → `15`), built multi-arch
+Releases are **tag-driven**. There is a single long-lived branch, `master`, and **pushing a semver
+tag `vN.0.x` publishes PostgreSQL N**. The major version is read from the tag name, so the tag is
+the sole source of truth for what gets built — there are **no per-version branches**.
+
+- `.github/workflows/docker-publish.yml` builds on every push / PR / tag, but **only pushes to a
+  registry on `v*.*.*` tags** (`push: ${{ startsWith(github.ref, 'refs/tags/v') … }}`). Branch
+  pushes, PRs, and manual `workflow_dispatch` runs are build-only smoke tests.
+- The **"Determine PostgreSQL major version" step** computes the major: from the tag (`v14.0.1` →
+  `14`) on a tag push; from the `pg_version` input on a manual run; otherwise `LATEST_MAJOR`. It is
+  passed to the build as `--build-arg PG_VERSION=N`, and the `Dockerfile`'s
+  `FROM postgres:${PG_VERSION}-alpine` builds the matching image. The step validates that the major
+  is digits-only.
+- The tag produces the Docker tag **`{{major}}`** (`v14.0.1` → `14`), built multi-arch
   (`linux/amd64,linux/arm64`), pushed to **both Docker Hub and GHCR**, and **cosign-signed**.
-- **`master` is the canonical base.** It mirrors the newest version's branch except for the version
-  pin, so new/updated version branches are cut from it. `master` itself never publishes (no tags).
 
 ### The `latest` tag
 
-`latest` must always point at the **newest** PostgreSQL major version. The workflow's
-`metadata-action` defaults to `latest=auto`, which re-points `latest` on *every* semver tag push
-(it does not compare versions). To stop an older release from stealing `latest`:
-
-> **Every `postgres-N` branch except the newest sets `flavor: latest=false` in its workflow.
-> Only the newest version's branch emits `latest`.**
-
-This makes tag-push order irrelevant. The current newest is `postgres-15`, which (like `master`)
-uses the default `latest=auto`; non-newest branches set `latest=false` as they are republished
-under this pattern (so far: `postgres-12`). When a new newest version arrives, flip the previous
-newest to `latest=false` (see below).
+`latest` must always point at the **newest** major version. The workflow never auto-assigns it
+(`flavor: latest=false`); it emits `latest` **only when the tag's major equals the `LATEST_MAJOR`
+env var** in the workflow. That env var is the one piece of state that cannot be derived from a tag
+("which major is currently newest"). Because `latest` is gated on a fixed value rather than push
+order, **tag-push order is irrelevant** and republishing an old version can never steal `latest`.
 
 ### Recipe: release a new major version (e.g. Postgres 16)
 
 ```bash
-git fetch origin
-git switch -c postgres-16 origin/master          # branch from master (modern workflow + latest schema)
+git switch master && git pull
+# 1. In .github/workflows/docker-publish.yml, bump:  LATEST_MAJOR: "16"
+# 2. (Optional) bump the Dockerfile's `ARG PG_VERSION=16` default, for local builds.
+git commit -am "postgres 16 is now the newest"
+git push origin master                       # build-only smoke test (builds pg16 via the new default)
 
-# 1. Bump BOTH `FROM postgres:NN-alpine` lines in Dockerfile to 16-alpine.
-# 2. This IS the newest version, so leave the workflow's latest handling at the default.
-git commit -am "postgres-16"
-git push -u origin postgres-16                    # build-only smoke test
-
-# 3. Once the branch build is green, tag to publish (`16` + `latest`, Docker Hub + GHCR):
+# 3. Tag to publish `16` + `latest` (Docker Hub + GHCR):
 git tag v16.0.0 && git push origin v16.0.0
-
-# 4. Demote the previous newest so a future rebuild can't reclaim `latest`:
-#    set `flavor: latest=false` in postgres-15's workflow, commit, push.
-# 5. Sync master to postgres-16 (minus the version pin), so it stays the canonical base.
 ```
 
-Releasing several at once (16 then 17): branch `postgres-17` from `postgres-16`; only `postgres-17`
-keeps `latest=auto`, all lower branches use `latest=false`. Order no longer matters.
+That's it — no new branch, and nothing to "demote": the previous newest stops getting `latest`
+automatically, because `latest` now keys off `LATEST_MAJOR`.
 
-### Recipe: republish an existing version (e.g. rebuild Postgres 14)
+### Recipe: republish or build any version (e.g. rebuild Postgres 14)
 
-Use when re-cutting an already-released version with a fixed/updated image. `vN.0.0` already exists,
-so bump the patch tag.
+No branch needed — just tag `master`. `vN.0.0` already exists, so bump the patch.
 
 ```bash
-git fetch origin
-git switch -c postgres-14 origin/postgres-14      # or check out the existing local branch
-git checkout master -- .                          # sync content from the canonical base
-# Re-pin the Dockerfile to 14-alpine. Since 14 is NOT the newest, set `flavor: latest=false`.
-git commit -am "postgres-14: <what changed>"
-git push -u origin postgres-14                     # build-only smoke test
-# Once green, bump the patch tag (republishes `14`, leaves `latest` untouched):
-git tag v14.0.1 && git push origin v14.0.1
+git switch master && git pull
+git tag v14.0.1 && git push origin v14.0.1   # builds & publishes `14`; `latest` untouched (14 ≠ LATEST_MAJOR)
 ```
 
-After any release, verify the published artifact: pull the image and confirm the schema
-(`16 tables + 7 views`), and confirm `latest` still points at the newest version.
+To preview an arbitrary version's build **without** publishing, run the workflow manually
+(GitHub ▸ Actions ▸ Docker ▸ Run workflow ▸ `pg_version = 14`), or build locally:
+`docker build --build-arg PG_VERSION=14 .`.
+
+After any release, verify the published artifact: pull the image, confirm the schema
+(`16 tables + 7 views`) and the PostgreSQL version, and confirm `latest` still points at the newest
+major.
+
+> **Legacy branches.** Earlier releases used one long-lived `postgres-N` branch per version. Those
+> branches are obsolete under the tag-driven model and can be deleted — the immutable `vN.0.x` tags
+> preserve every release (`git checkout vN.0.x` rebuilds it exactly).
 
 ## Conventions
 

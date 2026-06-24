@@ -72,8 +72,9 @@ Images are multi-arch (`linux/amd64`, `linux/arm64`) and are signed with
 
 ## Releasing a new version
 
-Maintainers: each PostgreSQL major version has a `postgres-N` branch, and a release is published by
-pushing a `vN.0.x` tag. See [CLAUDE.md](./CLAUDE.md) for the full, repeatable procedure.
+Maintainers: releases are tag-driven. Pushing a semver tag `vN.0.x` builds and publishes
+PostgreSQL N — the version is derived from the tag, so there are no per-version branches. See
+[CLAUDE.md](./CLAUDE.md) for the full, repeatable procedure.
 
 ## Changelog
 
