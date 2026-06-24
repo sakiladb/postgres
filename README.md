@@ -73,6 +73,40 @@ actor_id  first_name  last_name     last_update
 The standard Sakila sample database — **16 tables and 7 views**, all owned by the `sakila` user.
 Full-text search is available via the `film.fulltext` column.
 
+[`sq inspect`](https://sq.io/docs/inspect) shows the whole schema — tables, views, row counts, and
+columns — at a glance:
+
+```shell
+$ sq inspect @sakila_pg
+SOURCE      DRIVER    NAME    FQ NAME        SIZE    TABLES  VIEWS  LOCATION
+@sakila_pg  postgres  sakila  sakila.public  15.2MB  16      7      postgres://sakila:xxxxx@localhost:5432/sakila
+
+NAME                        TYPE   ROWS   COLS
+actor                       table  200    actor_id, first_name, last_name, last_update
+address                     table  603    address_id, address, address2, district, city_id, postal_code, phone, last_update
+category                    table  16     category_id, name, last_update
+city                        table  600    city_id, city, country_id, last_update
+country                     table  109    country_id, country, last_update
+customer                    table  599    customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active
+film                        table  1000   film_id, title, description, release_year, language_id, original_language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext
+film_actor                  table  5462   actor_id, film_id, last_update
+film_category               table  1000   film_id, category_id, last_update
+film_text                   table  1000   film_id, title, description
+inventory                   table  4581   inventory_id, film_id, store_id, last_update
+language                    table  6      language_id, name, last_update
+payment                     table  16049  payment_id, customer_id, staff_id, rental_id, amount, payment_date
+rental                      table  16044  rental_id, rental_date, inventory_id, customer_id, return_date, staff_id, last_update
+staff                       table  2      staff_id, first_name, last_name, address_id, email, store_id, active, username, password, last_update, picture
+store                       table  2      store_id, manager_staff_id, address_id, last_update
+actor_info                  view   200    actor_id, first_name, last_name, film_info
+customer_list               view   599    id, name, address, zip code, phone, city, country, notes, sid
+film_list                   view   997    fid, title, description, category, price, length, rating, actors
+nicer_but_slower_film_list  view   997    fid, title, description, category, price, length, rating, actors
+sales_by_film_category      view   16     category, total_sales
+sales_by_store              view   2      store, manager, total_sales
+staff_list                  view   2      id, name, address, zip code, phone, city, country, sid
+```
+
 ## Available versions
 
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the newest
