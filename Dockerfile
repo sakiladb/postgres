@@ -24,3 +24,11 @@ RUN ["/usr/local/bin/docker-entrypoint.sh", "postgres"]
 FROM postgres:${PG_VERSION}-alpine
 
 COPY --from=dumper /data $PGDATA
+
+# Report readiness once Postgres is accepting connections, so consumers can wait
+# on `healthy` (docker inspect / compose `service_healthy`) instead of grepping
+# logs. pg_isready can exit 2 or 3, which Docker reserves, so normalize any
+# failure to exit 1. The sakila user/db are hardcoded (the final stage doesn't
+# carry the build-stage POSTGRES_* env vars).
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD pg_isready -U sakila -d sakila || exit 1

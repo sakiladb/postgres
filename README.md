@@ -18,12 +18,19 @@ docker run -p 5432:5432 -d sakiladb/postgres:latest
 ```
 
 The Sakila data is baked into the image, so there is no initialization step at startup — the
-container is ready in about a second. PostgreSQL logs its standard ready line when it is accepting
-connections:
+container is ready in about a second.
 
+The image declares a Docker
+[`HEALTHCHECK`](https://docs.docker.com/reference/dockerfile/#healthcheck), so you can wait for
+readiness rather than guessing. Its status becomes `healthy` once Postgres is accepting connections:
+
+```shell
+docker run -p 5432:5432 -d --name sakila sakiladb/postgres:latest
+until [ "$(docker inspect -f '{{.State.Health.Status}}' sakila)" = healthy ]; do sleep 1; done
 ```
-LOG:  database system is ready to accept connections
-```
+
+In Docker Compose, gate dependents with `depends_on: { condition: service_healthy }`. (PostgreSQL
+also logs its native `database system is ready to accept connections` line.)
 
 ## Connection
 

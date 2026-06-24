@@ -59,7 +59,22 @@ The four init SQL files run in order, as the `sakila` superuser:
 | `2-postgres-sakila-insert-data.sql` | Data (`Insert into …` statements). |
 | `3-postgres-sakila-user.sql` | Populate `film_text` from `film`; reassign ownership of everything to `sakila`; drop the temp `postgres` user; log the completion message. |
 
-The container logs `sakiladb/postgres has successfully initialized.` once `3-…` completes.
+This all happens at **build** time, in the dumper stage — `3-…` logs `sakiladb/postgres has
+successfully initialized.` into the build output. At **runtime** the final image just starts
+Postgres against the pre-baked data dir (the entrypoint logs `Skipping initialization`), so it is
+ready in about a second and that build-time message does *not* reappear.
+
+### Readiness (HEALTHCHECK)
+
+The final stage declares a Docker `HEALTHCHECK` (`pg_isready -U sakila -d sakila`), so the container
+reports `healthy` once Postgres accepts connections — consumers wait on that rather than grepping
+logs. `pg_isready` can exit `2`/`3` (values Docker reserves), so the check normalizes any failure to
+exit `1`. The `sakila` user/db are hardcoded because the final stage does not carry the build
+stage's `POSTGRES_*` env vars.
+
+> **Family convention:** every `sakiladb` image should declare a `HEALTHCHECK` using its engine's
+> native readiness probe (`pg_isready`, `mysqladmin ping`, `sqlcmd … SELECT 1`, …). The probe
+> command differs per engine; the readiness *contract* (`healthy` = ready to serve) is uniform.
 
 ## How releases work
 
