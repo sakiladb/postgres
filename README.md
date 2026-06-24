@@ -26,20 +26,20 @@ docker run -p 5432:5432 -d sakiladb/postgres:15
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the
 newest version (currently 15).
 
-| PostgreSQL | Image tags     |
-|-----------:|----------------|
-|         15 | `15`, `latest` |
-|         14 | `14`           |
-|         13 | `13`           |
-|         12 | `12`           |
-|         11 | `11`           |
-|         10 | `10`           |
-|          9 | `9`            |
+| PostgreSQL | Docker Hub                          | GitHub Container Registry         |
+|-----------:|-------------------------------------|-----------------------------------|
+|         15 | `sakiladb/postgres:15`, `:latest`   | —                                 |
+|         14 | `sakiladb/postgres:14`              | —                                 |
+|         13 | `sakiladb/postgres:13`              | —                                 |
+|         12 | `sakiladb/postgres:12`              | `ghcr.io/sakiladb/postgres:12`    |
+|         11 | `sakiladb/postgres:11`              | —                                 |
+|         10 | `sakiladb/postgres:10`              | —                                 |
+|          9 | `sakiladb/postgres:9`               | —                                 |
 
-Images are published to [Docker Hub](https://hub.docker.com/r/sakiladb/postgres)
-(`sakiladb/postgres`). Versions republished since June 2026 are also mirrored to
+[Docker Hub](https://hub.docker.com/r/sakiladb/postgres) carries every version.
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres)
-(`ghcr.io/sakiladb/postgres`, currently `12`).
+mirroring began with the June 2026 republish; a `—` marks versions not yet mirrored
+there (they'll be added as each is republished).
 
 To verify that all is well:
 
