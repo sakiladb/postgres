@@ -42,18 +42,8 @@ also logs its native `database system is ready to accept connections` line.)
 | user       | `sakila`    |
 | password   | `p_ssW0rd`  |
 
-```shell
-$ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM actor LIMIT 5'
- actor_id | first_name |  last_name   |     last_update
-----------+------------+--------------+---------------------
-        1 | PENELOPE   | GUINESS      | 2006-02-15 04:34:33
-        2 | NICK       | WAHLBERG     | 2006-02-15 04:34:33
-        3 | ED         | CHASE        | 2006-02-15 04:34:33
-        4 | JENNIFER   | DAVIS        | 2006-02-15 04:34:33
-        5 | JOHNNY     | LOLLOBRIGIDA | 2006-02-15 04:34:33
-```
-
-Or add it as a source in [`sq`](https://github.com/neilotoole/sq) ([install](https://sq.io/docs/install)):
+Any Postgres client works with the settings above. For example, with
+[`sq`](https://github.com/neilotoole/sq) ([install](https://sq.io/docs/install)):
 
 ```shell
 $ sq add 'postgres://sakila:p_ssW0rd@localhost:5432/sakila' --handle @sakila_pg
