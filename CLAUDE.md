@@ -106,7 +106,9 @@ automatically, because `latest` now keys off `LATEST_MAJOR`.
 
 ### Recipe: republish or build any version (e.g. rebuild Postgres 14)
 
-No branch needed — just tag `master`. `vN.0.0` already exists, so bump the patch.
+No branch needed — just tag `master`. `vN.0.0` already exists, so bump to the next **unused** patch
+(`git tag -l 'v14.*'` first — e.g. Postgres 9 already has both `v9.0.0` and `v9.0.1`, so its next
+rebuild is `v9.0.2`).
 
 ```bash
 git switch master && git pull
@@ -117,9 +119,14 @@ To preview an arbitrary version's build **without** publishing, run the workflow
 (GitHub ▸ Actions ▸ Docker ▸ Run workflow ▸ `pg_version = 14`), or build locally:
 `docker build --build-arg PG_VERSION=14 .`.
 
-After any release, verify the published artifact: pull the image, confirm the schema
-(`16 tables + 7 views`) and the PostgreSQL version, and confirm `latest` still points at the newest
-major.
+After any release:
+
+1. **Verify the published artifact** — pull the image, confirm the schema (`16 tables + 7 views`)
+   and the PostgreSQL version, and confirm `latest` still points at the newest major.
+2. **Update the README "Available versions" table** — it is maintained by hand. Set the row's
+   **Release** cell to the new tag (e.g. `v14.0.1`), and fill in the **GitHub Container Registry**
+   cell (replace `—` with `ghcr.io/sakiladb/postgres:N`) the first time a version is published under
+   the GHCR-enabled workflow. Add a dated **Changelog** entry if the change is user-visible.
 
 > **Legacy branches.** Earlier releases used one long-lived `postgres-N` branch per version. Those
 > branches are obsolete under the tag-driven model and can be deleted — the immutable `vN.0.x` tags
