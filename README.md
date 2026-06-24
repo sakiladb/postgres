@@ -21,6 +21,26 @@ on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres/tags).)
 docker run -p 5432:5432 -d sakiladb/postgres:15
 ```
 
+## Available versions
+
+Each PostgreSQL major version is published as its own image tag. `latest` tracks the
+newest version (currently 15).
+
+| PostgreSQL | Image tags     |
+|-----------:|----------------|
+|         15 | `15`, `latest` |
+|         14 | `14`           |
+|         13 | `13`           |
+|         12 | `12`           |
+|         11 | `11`           |
+|         10 | `10`           |
+|          9 | `9`            |
+
+Images are published to [Docker Hub](https://hub.docker.com/r/sakiladb/postgres)
+(`sakiladb/postgres`). Versions republished since June 2026 are also mirrored to
+[GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres)
+(`ghcr.io/sakiladb/postgres`, currently `12`).
+
 To verify that all is well:
 
 ```shell script
@@ -39,3 +59,26 @@ $ PGPASSWORD=p_ssW0rd psql -h localhost -d sakila -U sakila -c 'SELECT * FROM ac
 Maintainers: each Postgres major version has a `postgres-N` branch, and a release is
 published by pushing a `vN.0.0` tag. See [CLAUDE.md](./CLAUDE.md) for the full,
 repeatable procedure.
+
+## Changelog
+
+### 2026-06-23
+
+- **PostgreSQL `12` republished** to match the other
+  [sakiladb](https://github.com/sakiladb) variants as a consistent test fixture:
+  added the `film_text` table (populated from `film`) and dropped the empty
+  `payment_p2007_*` partitions, so the image now exposes the same 16 tables and
+  7 views as the other variants. Postgres still provides full-text search via the
+  `film.fulltext` column; `film_text` is added for cross-variant parity.
+- Images are now also published to GitHub Container Registry (`ghcr.io/sakiladb/postgres`).
+- Modernized the GitHub Actions release workflow: current action versions, and a fix
+  for cosign image signing.
+
+### 2023-08-26
+
+- Published PostgreSQL `9`–`15`.
+- The image's root user is now `sakila` (previously `postgres`).
+
+### 2022-12-22
+
+- Initial release.
