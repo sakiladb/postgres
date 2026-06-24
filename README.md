@@ -63,7 +63,12 @@ version (currently 15).
 |          9 | `v9.0.0`  | `sakiladb/postgres:9`             | —                              |
 
 **Release** is the git tag the current image was built from (see
-[releases](https://github.com/sakiladb/postgres/releases)).
+[releases](https://github.com/sakiladb/postgres/releases)). Its version is
+`v{POSTGRES_MAJOR}.{MINOR}.{PATCH}`: the **major** tracks the upstream PostgreSQL major version,
+while the **minor** and **patch** track sakiladb's own revisions of that image. In practice only the
+patch is bumped (e.g. a rebuilt Postgres 13 image goes `v13.0.0` → `v13.0.1`), so the minor stays
+`0`.
+
 [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) carries every version.
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres) mirroring
 began with the June 2026 republish; a `—` marks versions not yet mirrored there (each is added as it

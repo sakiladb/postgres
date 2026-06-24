@@ -135,6 +135,8 @@ After any release:
 ## Conventions
 
 - **Credentials:** database / user / password = `sakila` / `sakila` / `p_ssW0rd`.
-- **Tags:** Docker tag is the major version only (`15`); `latest` on the newest. Git tags are semver
-  `vN.0.x`.
+- **Tags:** Docker tag is the major version only (`15`); `latest` on the newest. Git tags are
+  `v{POSTGRES_MAJOR}.{MINOR}.{PATCH}` — the major tracks the upstream PostgreSQL version, the
+  minor/patch track sakiladb's own revisions. In practice only the patch moves (the minor stays
+  `0`), so release tags look like `v15.0.0`, `v15.0.1`, ….
 - **No AI attribution** in commits, tags, PRs, or any other content.
