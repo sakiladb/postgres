@@ -71,7 +71,6 @@ actor_id  first_name  last_name     last_update
 ## What's inside
 
 The standard Sakila sample database — **16 tables and 7 views**, all owned by the `sakila` user.
-Full-text search is available via the `film.fulltext` column.
 
 [`sq inspect`](https://sq.io/docs/inspect) shows the whole schema — tables, views, row counts, and
 columns — at a glance:
@@ -88,7 +87,7 @@ category                    table  16     category_id, name, last_update
 city                        table  600    city_id, city, country_id, last_update
 country                     table  109    country_id, country, last_update
 customer                    table  599    customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active
-film                        table  1000   film_id, title, description, release_year, language_id, original_language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features, fulltext
+film                        table  1000   film_id, title, description, release_year, language_id, original_language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features
 film_actor                  table  5462   actor_id, film_id, last_update
 film_category               table  1000   film_id, category_id, last_update
 film_text                   table  1000   film_id, title, description
@@ -110,13 +109,10 @@ staff_list                  view   2      id, name, address, zip code, phone, ci
 ## Differences from other sakila variants
 
 Every sakiladb variant is the same database — the MySQL Sakila, ported via
-[jOOQ](https://www.jooq.org/sakila). The Postgres port just represents a few things idiomatically, so
-some schema details differ from MySQL. The **data is identical** (same row counts); these are schema
+[jOOQ](https://www.jooq.org/sakila). The Postgres port represents a few things idiomatically, so a
+few schema details differ from MySQL. The **data is identical** (same row counts); these are schema
 differences:
 
-- **Full-text search** uses the `film.fulltext` `tsvector` column (GiST-indexed, trigger-maintained),
-  not a `FULLTEXT` index on `film_text`. A `film_text` table *is* present (populated from `film`) so
-  the table set matches the other variants, but it is not what Postgres searches against.
 - **`customer` has both `activebool` (boolean) and `active` (integer)**; MySQL has only `active`.
 - **`payment` has no `last_update` column** (MySQL's does).
 - **`address` has no `location` column** — MySQL carries a spatial `GEOMETRY` column there; this
@@ -124,6 +120,18 @@ differences:
 - **Identifiers are lower-case.** Postgres folds unquoted identifiers, so view columns that are
   upper- or mixed-case in MySQL appear lower-case here (e.g. `customer_list.id` / `.sid` vs
   `ID` / `SID`).
+
+Full-text search is represented the MySQL way — by a `film_text` table (populated from `film`). It
+is a plain table here (no full-text index), so it provides structural parity rather than working
+full-text search.
+
+### Not pagila
+
+[pagila](https://github.com/devrimgunduz/pagila) is a *separate*, independently-maintained
+Postgres-native Sakila port; it is **not** part of this family. It ships Postgres-specific extras
+that this image deliberately does not — for example a `film.fulltext` `tsvector` column and a
+partitioned `payment` table. `sakiladb/postgres` is the MySQL Sakila via jOOQ, trimmed to stay
+consistent with the other sakiladb variants, so pagila's extras are intentionally absent.
 
 ## Available versions
 

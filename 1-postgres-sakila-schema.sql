@@ -167,8 +167,7 @@ CREATE TABLE film (
     replacement_cost numeric(5,2) DEFAULT 19.99 NOT NULL,
     rating mpaa_rating DEFAULT 'G'::mpaa_rating,
     last_update timestamp without time zone DEFAULT now() NOT NULL,
-    special_features text[],
-    fulltext tsvector NOT NULL
+    special_features text[]
 );
 
 
@@ -983,14 +982,7 @@ ALTER TABLE ONLY store
 
 
 --
--- Name: film_fulltext_idx; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
---
-
-CREATE INDEX film_fulltext_idx ON film USING gist (fulltext);
-
-
---
--- Name: idx_actor_last_name; Type: INDEX; Schema: public; Owner: postgres; Tablespace: 
+-- Name: idx_actor_last_name; Type: INDEX; Schema: public; Owner: postgres; Tablespace:
 --
 
 CREATE INDEX idx_actor_last_name ON actor USING btree (last_name);
@@ -1225,16 +1217,6 @@ CREATE RULE payment_insert_p2007_05 AS ON INSERT TO payment WHERE ((new.payment_
 --
 
 CREATE RULE payment_insert_p2007_06 AS ON INSERT TO payment WHERE ((new.payment_date >= '2007-06-01 00:00:00'::timestamp without time zone) AND (new.payment_date < '2007-07-01 00:00:00'::timestamp without time zone)) DO INSTEAD INSERT INTO payment_p2007_06 (payment_id, customer_id, staff_id, rental_id, amount, payment_date) VALUES (DEFAULT, new.customer_id, new.staff_id, new.rental_id, new.amount, new.payment_date);
-
-
---
--- Name: film_fulltext_trigger; Type: TRIGGER; Schema: public; Owner: postgres
---
-
-CREATE TRIGGER film_fulltext_trigger
-    BEFORE INSERT OR UPDATE ON film
-    FOR EACH ROW
-    EXECUTE PROCEDURE tsvector_update_trigger('fulltext', 'pg_catalog.english', 'title', 'description');
 
 
 --
@@ -1720,9 +1702,8 @@ GRANT ALL ON SCHEMA public TO PUBLIC;
 --
 -- Name: film_text; Type: TABLE; Schema: public; Owner: postgres
 --
--- The other sakila datasets (notably MySQL) carry a film_text table. The upstream
--- Postgres schema instead does full-text search via the film.fulltext tsvector
--- column, and omits film_text. We add it here for cross-variant parity; it is
+-- The other sakila datasets (notably MySQL) carry a film_text table; the upstream
+-- jOOQ Postgres dump omitted it. We add it here for cross-variant parity; it is
 -- populated from film in 3-postgres-sakila-user.sql (after the film data loads).
 --
 

@@ -25,18 +25,20 @@ per-table column/count constants), `libsq/driver/driver_test.go` (per-image tabl
 
 ## The dataset
 
-The standard Sakila database, preloaded and owned by the `sakila` user: **16 tables + 7 views**.
-Two PostgreSQL-specific points worth knowing:
+The standard Sakila database, preloaded and owned by the `sakila` user: **16 tables + 7 views**,
+kept consistent with the canonical MySQL Sakila. Two ways this image is trimmed from the upstream
+jOOQ Postgres dump so it matches MySQL:
 
-- **Full-text search** uses the `film.fulltext` `tsvector` column (GiST-indexed, maintained by the
-  `film_fulltext_trigger`), not MySQL's separate `film_text` table. A `film_text` table is *also*
-  included (populated from `film`) purely so the object set matches the other variants.
-- **`payment` is a plain table.** The upstream jOOQ dump's empty `payment_p2007_*` inheritance
-  partitions are dropped — they were vestigial (all payment rows live in the parent) and made
-  Postgres report 21 tables instead of 16.
+- **`film_text`** is present (populated from `film`) for parity with MySQL and the other variants.
+  The jOOQ dump instead shipped a `film.fulltext` `tsvector` column (GiST index + trigger) for
+  full-text search; we removed it so `film` has the same columns as MySQL. `film_text` is a plain
+  table — structural parity, not a working full-text index.
+- **`payment` is a plain table.** The jOOQ dump's empty `payment_p2007_*` inheritance partitions are
+  dropped — they were vestigial (all payment rows live in the parent) and made Postgres report 21
+  tables instead of 16.
 
-Both customizations live at the bottom of `1-postgres-sakila-schema.sql` (with the `film_text`
-populate in `3-postgres-sakila-user.sql`), clearly commented.
+These customizations live in `1-postgres-sakila-schema.sql` (with the `film_text` populate in
+`3-postgres-sakila-user.sql`), clearly commented.
 
 ## How the image is built
 
