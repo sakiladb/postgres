@@ -76,7 +76,7 @@ address                     table  603    address_id, address, address2, distric
 category                    table  16     category_id, name, last_update
 city                        table  600    city_id, city, country_id, last_update
 country                     table  109    country_id, country, last_update
-customer                    table  599    customer_id, store_id, first_name, last_name, email, address_id, activebool, create_date, last_update, active
+customer                    table  599    customer_id, store_id, first_name, last_name, email, address_id, create_date, last_update, active
 film                        table  1000   film_id, title, description, release_year, language_id, original_language_id, rental_duration, rental_rate, length, replacement_cost, rating, last_update, special_features
 film_actor                  table  5462   actor_id, film_id, last_update
 film_category               table  1000   film_id, category_id, last_update
@@ -103,7 +103,6 @@ Every sakiladb variant is the same database — the MySQL Sakila, ported via
 few schema details differ from MySQL. The **data is identical** (same row counts); these are schema
 differences:
 
-- **`customer` has both `activebool` (boolean) and `active` (integer)**; MySQL has only `active`.
 - **`payment` has no `last_update` column** (MySQL's does).
 - **`address` has no `location` column** — MySQL carries a spatial `GEOMETRY` column there; this
   image has no PostGIS dependency.
