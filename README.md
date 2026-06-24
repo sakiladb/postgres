@@ -107,6 +107,24 @@ sales_by_store              view   2      store, manager, total_sales
 staff_list                  view   2      id, name, address, zip code, phone, city, country, sid
 ```
 
+## Differences from other sakila variants
+
+Every sakiladb variant is the same database — the MySQL Sakila, ported via
+[jOOQ](https://www.jooq.org/sakila). The Postgres port just represents a few things idiomatically, so
+some schema details differ from MySQL. The **data is identical** (same row counts); these are schema
+differences:
+
+- **Full-text search** uses the `film.fulltext` `tsvector` column (GiST-indexed, trigger-maintained),
+  not a `FULLTEXT` index on `film_text`. A `film_text` table *is* present (populated from `film`) so
+  the table set matches the other variants, but it is not what Postgres searches against.
+- **`customer` has both `activebool` (boolean) and `active` (integer)**; MySQL has only `active`.
+- **`payment` has no `last_update` column** (MySQL's does).
+- **`address` has no `location` column** — MySQL carries a spatial `GEOMETRY` column there; this
+  image has no PostGIS dependency.
+- **Identifiers are lower-case.** Postgres folds unquoted identifiers, so view columns that are
+  upper- or mixed-case in MySQL appear lower-case here (e.g. `customer_list.id` / `.sid` vs
+  `ID` / `SID`).
+
 ## Available versions
 
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the newest
