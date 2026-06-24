@@ -8,7 +8,10 @@ published to [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) and
 > One of the [`sakiladb`](https://github.com/sakiladb) image family (`postgres`, `mysql`,
 > `sqlserver`, `oracle`, `clickhouse`, `rqlite`). The release machinery in
 > [How releases work](#how-releases-work) is **shared across the family**; the build details
-> in [How the image is built](#how-the-image-is-built) are **PostgreSQL-specific**.
+> in [How the image is built](#how-the-image-is-built) are **PostgreSQL-specific**. The org-level
+> landing page ([github.com/sakiladb](https://github.com/sakiladb)) is rendered from the org's
+> [`.github`](https://github.com/sakiladb/.github) repo — its README is at `profile/README.md`
+> (locally `../.github/profile/README.md`); edit it there to change the family overview.
 
 ## Purpose
 
