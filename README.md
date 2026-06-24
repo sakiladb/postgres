@@ -56,7 +56,7 @@ version (currently 15).
 |-----------:|-----------------------------------|--------------------------------|
 |         15 | `sakiladb/postgres:15`, `:latest` | —                              |
 |         14 | `sakiladb/postgres:14`            | —                              |
-|         13 | `sakiladb/postgres:13`            | —                              |
+|         13 | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13` |
 |         12 | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12` |
 |         11 | `sakiladb/postgres:11`            | —                              |
 |         10 | `sakiladb/postgres:10`            | —                              |
@@ -80,11 +80,12 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ### 2026-06-23
 
-- **PostgreSQL `12` republished** to match the other [sakiladb](https://github.com/sakiladb)
-  variants as a consistent test fixture: added the `film_text` table (populated from `film`) and
-  dropped the empty `payment_p2007_*` partitions, so the image now exposes the same 16 tables and
-  7 views as the other variants. Postgres still provides full-text search via the `film.fulltext`
-  column; `film_text` is added for cross-variant parity.
+- **PostgreSQL `12` and `13` republished** to match the other
+  [sakiladb](https://github.com/sakiladb) variants as a consistent test fixture: added the
+  `film_text` table (populated from `film`) and dropped the empty `payment_p2007_*` partitions, so
+  the images now expose the same 16 tables and 7 views as the other variants. Postgres still
+  provides full-text search via the `film.fulltext` column; `film_text` is added for cross-variant
+  parity. (Remaining versions follow.)
 - Images are now also published to GitHub Container Registry (`ghcr.io/sakiladb/postgres`).
 - Modernized the GitHub Actions release workflow: current action versions, and a fix for cosign
   image signing.
