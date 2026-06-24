@@ -52,16 +52,18 @@ Full-text search is available via the `film.fulltext` column.
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the newest
 version (currently 15).
 
-| PostgreSQL | Docker Hub                        | GitHub Container Registry      |
-|-----------:|-----------------------------------|--------------------------------|
-|         15 | `sakiladb/postgres:15`, `:latest` | —                              |
-|         14 | `sakiladb/postgres:14`            | —                              |
-|         13 | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13` |
-|         12 | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12` |
-|         11 | `sakiladb/postgres:11`            | —                              |
-|         10 | `sakiladb/postgres:10`            | —                              |
-|          9 | `sakiladb/postgres:9`             | —                              |
+| PostgreSQL | Release   | Docker Hub                        | GitHub Container Registry      |
+|-----------:|-----------|-----------------------------------|--------------------------------|
+|         15 | `v15.0.0` | `sakiladb/postgres:15`, `:latest` | —                              |
+|         14 | `v14.0.0` | `sakiladb/postgres:14`            | —                              |
+|         13 | `v13.0.1` | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13` |
+|         12 | `v12.0.1` | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12` |
+|         11 | `v11.0.0` | `sakiladb/postgres:11`            | —                              |
+|         10 | `v10.0.0` | `sakiladb/postgres:10`            | —                              |
+|          9 | `v9.0.0`  | `sakiladb/postgres:9`             | —                              |
 
+**Release** is the git tag the current image was built from (see
+[releases](https://github.com/sakiladb/postgres/releases)).
 [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) carries every version.
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres) mirroring
 began with the June 2026 republish; a `—` marks versions not yet mirrored there (each is added as it
