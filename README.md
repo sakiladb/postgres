@@ -17,13 +17,13 @@ Available on [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) and
 docker run -p 5432:5432 -d sakiladb/postgres:latest
 ```
 
-The container takes a few moments to start. When it is ready, the logs show:
+The Sakila data is baked into the image, so there is no initialization step at startup — the
+container is ready in about a second. PostgreSQL logs its standard ready line when it is accepting
+connections:
 
 ```
-sakiladb/postgres has successfully initialized.
+LOG:  database system is ready to accept connections
 ```
-
-Allow a few more seconds after that message (a final server restart) before connecting.
 
 ## Connection
 
