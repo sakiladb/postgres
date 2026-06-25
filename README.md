@@ -124,11 +124,14 @@ consistent with the other sakiladb variants, so pagila's extras are intentionall
 ## Available versions
 
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the newest
-version (currently 15).
+version (currently 18).
 
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
-|         15 | `v15.0.1`        | `sakiladb/postgres:15`, `:latest` | `ghcr.io/sakiladb/postgres:15`, `:latest` |
+|         18 | `v18.0.0`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
+|         17 | `v17.0.0`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
+|         16 | `v16.0.0`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
+|         15 | `v15.0.1`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
 |         14 | `v14.0.1`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
 |         13 | `v13.0.2`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
 |         12 | `v12.0.2`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
@@ -160,16 +163,18 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ### 2026-06-25
 
-- **All PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent test
-  fixture as the other [sakiladb](https://github.com/sakiladb) variants. Each image now exposes the
-  same **16 tables and 7 views** with matching columns: `film_text` added (populated from `film`),
-  the empty `payment_p2007_*` partitions dropped, the Postgres-only `film.fulltext` and
+- **All existing PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent
+  test fixture as the other [sakiladb](https://github.com/sakiladb) variants. Each image now exposes
+  the same **16 tables and 7 views** with matching columns: `film_text` added (populated from
+  `film`), the empty `payment_p2007_*` partitions dropped, the Postgres-only `film.fulltext` and
   `customer.activebool` columns removed, and `payment.last_update` added (with MySQL's values). The
   June 23 republish had only reached `12`/`13` and predated the column reconciliation, so those are
   rebuilt here too.
+- **PostgreSQL `16`, `17`, and `18` published** for the first time (`v16.0.0`, `v17.0.0`,
+  `v18.0.0`), as the same consistent fixture.
 - Every version now declares a Docker `HEALTHCHECK` (`pg_isready`) and is mirrored to GitHub
   Container Registry (`ghcr.io/sakiladb/postgres:N`).
-- `latest` now points at the freshly rebuilt `15` (`v15.0.1`).
+- **`latest` now tracks PostgreSQL `18`** (the newest), moved up from `15`.
 
 ### 2026-06-23
 

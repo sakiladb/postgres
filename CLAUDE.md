@@ -108,17 +108,17 @@ env var** in the workflow. That env var is the one piece of state that cannot be
 ("which major is currently newest"). Because `latest` is gated on a fixed value rather than push
 order, **tag-push order is irrelevant** and republishing an old version can never steal `latest`.
 
-### Recipe: release a new major version (e.g. Postgres 16)
+### Recipe: release a new major version (e.g. Postgres 19)
 
 ```bash
 git switch master && git pull
-# 1. In .github/workflows/docker-publish.yml, bump:  LATEST_MAJOR: "16"
-# 2. (Optional) bump the Dockerfile's `ARG PG_VERSION=16` default, for local builds.
-git commit -am "postgres 16 is now the newest"
-git push origin master                       # build-only smoke test (builds pg16 via the new default)
+# 1. In .github/workflows/docker-publish.yml, bump:  LATEST_MAJOR: "19"
+# 2. (Optional) bump the Dockerfile's `ARG PG_VERSION=19` default, for local builds.
+git commit -am "postgres 19 is now the newest"
+git push origin master                       # build-only smoke test (builds pg19 via the new default)
 
-# 3. Tag to publish `16` + `latest` (Docker Hub + GHCR):
-git tag v16.0.0 && git push origin v16.0.0
+# 3. Tag to publish `19` + `latest` (Docker Hub + GHCR):
+git tag v19.0.0 && git push origin v19.0.0
 ```
 
 That's it — no new branch, and nothing to "demote": the previous newest stops getting `latest`
@@ -156,7 +156,7 @@ After any release:
 ## Conventions
 
 - **Credentials:** database / user / password = `sakila` / `sakila` / `p_ssW0rd`.
-- **Tags:** Docker tag is the major version only (`15`); `latest` on the newest. Git tags are
+- **Tags:** Docker tag is the major version only (`18`); `latest` on the newest. Git tags are
   `v{POSTGRES_MAJOR}.{MINOR}.{PATCH}` — the major tracks the upstream PostgreSQL version, the
   minor/patch track sakiladb's own revisions. In practice only the patch moves (the minor stays
   `0`), so release tags look like `v15.0.0`, `v15.0.1`, ….
