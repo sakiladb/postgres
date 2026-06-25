@@ -134,16 +134,16 @@ version (currently 18).
 
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
-|         18 | `v18.0.0`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
-|         17 | `v17.0.0`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
-|         16 | `v16.0.0`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
-|         15 | `v15.0.1`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
-|         14 | `v14.0.1`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
-|         13 | `v13.0.2`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
-|         12 | `v12.0.2`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
-|         11 | `v11.0.1`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
-|         10 | `v10.0.1`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
-|          9 | `v9.0.2`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
+|         18 | `v18.0.1`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
+|         17 | `v17.0.1`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
+|         16 | `v16.0.1`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
+|         15 | `v15.0.2`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
+|         14 | `v14.0.2`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
+|         13 | `v13.0.3`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
+|         12 | `v12.0.3`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
+|         11 | `v11.0.2`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
+|         10 | `v10.0.2`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
+|          9 | `v9.0.3`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
@@ -167,11 +167,12 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ## Changelog
 
-### Unreleased
+### 2026-06-25 — full MySQL parity
 
-Postgres brought to full parity with the canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql)
-image — a faithful, **writable** Sakila — with **no change to the 16-table / 7-view fixture**
-(every addition below is invisible to schema introspection). To ship in the next republish wave:
+**Republished all versions (`v9.0.3` … `v18.0.1`)** with `sakiladb/postgres` brought to full parity
+with the canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image — a faithful,
+**writable** Sakila — with **no change to the 16-table / 7-view fixture** (every change below is
+invisible to schema introspection):
 
 - **Mutation-maintenance triggers, matching MySQL.** `film_text` now stays in sync with `film`
   (`ins_film` / `upd_film` / `del_film`); `customer.create_date`, `payment.payment_date`, and
@@ -188,7 +189,7 @@ image — a faithful, **writable** Sakila — with **no change to the 16-table /
 - **Column order matches MySQL.** Restored MySQL's column order in `customer`, `film`, and `staff`
   (the jOOQ port had reordered a few columns), so column order is now identical across all 16 tables.
 
-### 2026-06-25
+### 2026-06-25 — consistent fixture, HEALTHCHECK & GHCR
 
 - **All existing PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent
   test fixture as the other [sakiladb](https://github.com/sakiladb) variants. Each image now exposes
