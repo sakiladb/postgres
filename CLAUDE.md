@@ -149,8 +149,9 @@ After any release:
    the GHCR-enabled workflow. Add a dated **Changelog** entry if the change is user-visible.
 
 > **Legacy branches.** Earlier releases used one long-lived `postgres-N` branch per version. Those
-> branches are obsolete under the tag-driven model and can be deleted — the immutable `vN.0.x` tags
-> preserve every release (`git checkout vN.0.x` rebuilds it exactly).
+> branches were obsolete under the tag-driven model and have been deleted (June 2026); `master` is now
+> the only branch. The immutable `vN.0.x` tags preserve every release (`git checkout vN.0.x` rebuilds
+> it exactly).
 
 ## Conventions
 
