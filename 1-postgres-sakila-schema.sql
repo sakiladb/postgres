@@ -166,8 +166,8 @@ CREATE TABLE film (
     length smallint,
     replacement_cost numeric(5,2) DEFAULT 19.99 NOT NULL,
     rating mpaa_rating DEFAULT 'G'::mpaa_rating,
-    last_update timestamp without time zone DEFAULT now() NOT NULL,
-    special_features text[]
+    special_features text[],
+    last_update timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -317,9 +317,9 @@ CREATE TABLE customer (
     last_name character varying(45) NOT NULL,
     email character varying(50),
     address_id smallint NOT NULL,
+    active boolean DEFAULT true NOT NULL,
     create_date timestamp without time zone NOT NULL,
-    last_update timestamp without time zone DEFAULT now(),
-    active boolean DEFAULT true NOT NULL
+    last_update timestamp without time zone DEFAULT now()
 );
 
 
@@ -566,13 +566,13 @@ CREATE TABLE staff (
     first_name character varying(45) NOT NULL,
     last_name character varying(45) NOT NULL,
     address_id smallint NOT NULL,
+    picture bytea,
     email character varying(50),
     store_id smallint NOT NULL,
     active boolean DEFAULT true NOT NULL,
     username character varying(16) NOT NULL,
     password character varying(40),
-    last_update timestamp without time zone DEFAULT now() NOT NULL,
-    picture bytea
+    last_update timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
