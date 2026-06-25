@@ -167,54 +167,24 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ## Changelog
 
-### 2026-06-25 — full MySQL parity
+### 2026-06-25
 
-**Republished all versions (`v9.0.3` … `v18.0.1`)** with `sakiladb/postgres` brought to full parity
-with the canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image — a faithful,
-**writable** Sakila — with **no change to the 16-table / 7-view fixture** (every change below is
-invisible to schema introspection):
+Republished every version (`v9.0.3`–`v18.0.1`) and published `16`/`17`/`18` for the first time, so
+all majors `9`–`18` are now the same consistent test fixture as the other
+[sakiladb](https://github.com/sakiladb) variants — **16 tables and 7 views** — reconciled to the
+canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image. Net changes:
 
-- **Mutation-maintenance triggers, matching MySQL.** `film_text` now stays in sync with `film`
-  (`ins_film` / `upd_film` / `del_film`); `customer.create_date`, `payment.payment_date`, and
-  `rental.rental_date` are stamped with `NOW()` on insert; and `payment.last_update` bumps on update
-  (the one `last_updated` trigger pagila omits). The functional GIN full-text index rides along, so
-  full-text search stays correct under mutation. Triggers govern only post-build mutations — the
-  historical data is unchanged.
-- **`active` columns typed as `boolean`.** `customer.active` is now `boolean` (was `integer`), so it
-  matches `staff.active` and MySQL's `BOOLEAN`; it is `NOT NULL DEFAULT true`, and `payment.last_update`
-  is now nullable, both mirroring MySQL.
-- **Secondary indexes on foreign-key columns.** Added the FK-column indexes MySQL auto-creates but
-  the jOOQ port omitted (`film_category`, `inventory`, `payment`, `rental`, `staff`, `store`), so
-  per-table index counts now match MySQL.
-- **Column order matches MySQL.** Restored MySQL's column order in `customer`, `film`, and `staff`
-  (the jOOQ port had reordered a few columns), so column order is now identical across all 16 tables.
-
-### 2026-06-25 — consistent fixture, HEALTHCHECK & GHCR
-
-- **All existing PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent
-  test fixture as the other [sakiladb](https://github.com/sakiladb) variants. Each image now exposes
-  the same **16 tables and 7 views** with matching columns: `film_text` added (populated from
-  `film`), the empty `payment_p2007_*` partitions dropped, the Postgres-only `film.fulltext` and
-  `customer.activebool` columns removed, and `payment.last_update` added (with MySQL's values). The
-  June 23 republish had only reached `12`/`13` and predated the column reconciliation, so those are
-  rebuilt here too.
-- **PostgreSQL `16`, `17`, and `18` published** for the first time (`v16.0.0`, `v17.0.0`,
-  `v18.0.0`), as the same consistent fixture.
-- Every version now declares a Docker `HEALTHCHECK` (`pg_isready`) and is mirrored to GitHub
-  Container Registry (`ghcr.io/sakiladb/postgres:N`).
-- **`latest` now tracks PostgreSQL `18`** (the newest), moved up from `15`.
-
-### 2026-06-23
-
-- **PostgreSQL `12` and `13` republished** to match the other
-  [sakiladb](https://github.com/sakiladb) variants as a consistent test fixture: added the
-  `film_text` table (populated from `film`) and dropped the empty `payment_p2007_*` partitions, so
-  the images expose the same 16 tables and 7 views as the other variants. (These interim images —
-  `v12.0.1` / `v13.0.1` — were superseded two days later by the 2026-06-25 rebuild, which also
-  reconciled columns and added the HEALTHCHECK.)
-- Images are now also published to GitHub Container Registry (`ghcr.io/sakiladb/postgres`).
-- Modernized the GitHub Actions release workflow: current action versions, and a fix for cosign
-  image signing.
+- **Schema reconciled to MySQL / the family.** Added `film_text` (populated from `film`, with working
+  full-text search via a functional GIN index) and `payment.last_update`; dropped the empty
+  `payment_p2007_*` partitions and the Postgres-only `film.fulltext` / `customer.activebool` columns;
+  `customer.active` is now `boolean`; and column order, nullability, and FK-column indexes now match
+  MySQL.
+- **Writable parity with MySQL.** Mutation-maintenance triggers keep `film_text` in sync with `film`,
+  stamp `create_date` / `payment_date` / `rental_date` on insert, and bump `last_update` on update —
+  all invisible to the fixture's schema.
+- **`latest` now tracks PostgreSQL `18`** (moved up from `15`).
+- Every image declares a Docker `HEALTHCHECK` (`pg_isready`) and is mirrored to GitHub Container
+  Registry (`ghcr.io/sakiladb/postgres`).
 
 ### 2023-08-26
 
