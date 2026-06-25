@@ -185,6 +185,8 @@ image — a faithful, **writable** Sakila — with **no change to the 16-table /
 - **Secondary indexes on foreign-key columns.** Added the FK-column indexes MySQL auto-creates but
   the jOOQ port omitted (`film_category`, `inventory`, `payment`, `rental`, `staff`, `store`), so
   per-table index counts now match MySQL.
+- **Column order matches MySQL.** Restored MySQL's column order in `customer`, `film`, and `staff`
+  (the jOOQ port had reordered a few columns), so column order is now identical across all 16 tables.
 
 ### 2026-06-25
 
