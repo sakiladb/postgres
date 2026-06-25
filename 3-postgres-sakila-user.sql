@@ -3,6 +3,15 @@
 INSERT INTO film_text (film_id, title, description)
     SELECT film_id, title, description FROM film;
 
+-- Full-text search index on film_text. A *functional* GIN index (not a stored
+-- tsvector column), so the column set stays identical to the other variants —
+-- FTS is added "under" the table, invisible to schema introspection. Query via:
+--   SELECT * FROM film_text
+--   WHERE to_tsvector('english', title || ' ' || coalesce(description, ''))
+--         @@ to_tsquery('english', 'astronaut');
+CREATE INDEX film_text_fts ON film_text
+    USING gin (to_tsvector('english', title || ' ' || coalesce(description, '')));
+
 -- The database dump used the "postgres" user. But we want everything to
 -- be owned by the sakila user.
 ALTER SCHEMA public OWNER TO sakila;

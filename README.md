@@ -109,8 +109,15 @@ schema across all of them. They all descend from the MySQL Sakila, ported to Pos
   variants.
 
 `film_text` is **parity, not a difference**: MySQL has a `film_text` table, so this image does too
-(populated from `film`). It is a plain table here — no full-text index — so it provides structural
-parity rather than working full-text search.
+(populated from `film`), with **working full-text search** via a *functional* GIN index:
+
+```sql
+SELECT title FROM film_text
+WHERE to_tsvector('english', title || ' ' || coalesce(description, '')) @@ to_tsquery('english', 'astronaut');
+```
+
+The index is functional (no stored `tsvector` column), so `film_text` keeps the same three columns as
+every other variant — full-text search is added *under* the table, invisible to the schema.
 
 ### Not pagila
 
