@@ -317,7 +317,7 @@ CREATE TABLE customer (
     last_name character varying(45) NOT NULL,
     email character varying(50),
     address_id smallint NOT NULL,
-    create_date timestamp without time zone DEFAULT now() NOT NULL,
+    create_date timestamp without time zone NOT NULL,
     last_update timestamp without time zone DEFAULT now(),
     active integer
 );
@@ -1355,6 +1355,19 @@ CREATE TRIGGER last_updated
 
 CREATE TRIGGER last_updated
     BEFORE UPDATE ON store
+    FOR EACH ROW
+    EXECUTE PROCEDURE last_updated();
+
+
+--
+-- Name: last_updated; Type: TRIGGER; Schema: public; Owner: postgres
+--
+-- payment bumps last_update on UPDATE too, matching sakiladb/mysql (where every
+-- last_update column is ON UPDATE CURRENT_TIMESTAMP). pagila omits this one
+-- trigger; we add it for mutation parity with the canonical MySQL image.
+
+CREATE TRIGGER last_updated
+    BEFORE UPDATE ON payment
     FOR EACH ROW
     EXECUTE PROCEDURE last_updated();
 
