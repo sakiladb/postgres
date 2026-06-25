@@ -37,7 +37,7 @@ END $$;
 CREATE TRIGGER ins_film
     AFTER INSERT ON film
     FOR EACH ROW
-    EXECUTE FUNCTION film_text_ins();
+    EXECUTE PROCEDURE film_text_ins();
 
 CREATE FUNCTION film_text_upd() RETURNS trigger
     LANGUAGE plpgsql AS $$
@@ -57,7 +57,7 @@ END $$;
 CREATE TRIGGER upd_film
     AFTER UPDATE ON film
     FOR EACH ROW
-    EXECUTE FUNCTION film_text_upd();
+    EXECUTE PROCEDURE film_text_upd();
 
 CREATE FUNCTION film_text_del() RETURNS trigger
     LANGUAGE plpgsql AS $$
@@ -69,7 +69,7 @@ END $$;
 CREATE TRIGGER del_film
     AFTER DELETE ON film
     FOR EACH ROW
-    EXECUTE FUNCTION film_text_del();
+    EXECUTE PROCEDURE film_text_del();
 
 -- Date columns are forced to NOW() on insert (MySQL's customer_create_date /
 -- payment_date / rental_date BEFORE INSERT triggers). Like MySQL, these
@@ -85,7 +85,7 @@ END $$;
 CREATE TRIGGER customer_create_date
     BEFORE INSERT ON customer
     FOR EACH ROW
-    EXECUTE FUNCTION set_customer_create_date();
+    EXECUTE PROCEDURE set_customer_create_date();
 
 CREATE FUNCTION set_payment_date() RETURNS trigger
     LANGUAGE plpgsql AS $$
@@ -97,7 +97,7 @@ END $$;
 CREATE TRIGGER payment_date
     BEFORE INSERT ON payment
     FOR EACH ROW
-    EXECUTE FUNCTION set_payment_date();
+    EXECUTE PROCEDURE set_payment_date();
 
 CREATE FUNCTION set_rental_date() RETURNS trigger
     LANGUAGE plpgsql AS $$
@@ -109,7 +109,7 @@ END $$;
 CREATE TRIGGER rental_date
     BEFORE INSERT ON rental
     FOR EACH ROW
-    EXECUTE FUNCTION set_rental_date();
+    EXECUTE PROCEDURE set_rental_date();
 
 -- The database dump used the "postgres" user. But we want everything to
 -- be owned by the sakila user.
