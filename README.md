@@ -126,15 +126,15 @@ consistent with the other sakiladb variants, so pagila's extras are intentionall
 Each PostgreSQL major version is published as its own image tag. `latest` tracks the newest
 version (currently 15).
 
-| PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry      |
-|-----------:|------------------|-----------------------------------|--------------------------------|
-|         15 | `v15.0.0`        | `sakiladb/postgres:15`, `:latest` | —                              |
-|         14 | `v14.0.0`        | `sakiladb/postgres:14`            | —                              |
-|         13 | `v13.0.1`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13` |
-|         12 | `v12.0.1`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12` |
-|         11 | `v11.0.0`        | `sakiladb/postgres:11`            | —                              |
-|         10 | `v10.0.0`        | `sakiladb/postgres:10`            | —                              |
-|          9 | `v9.0.2`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`  |
+| PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry       |
+|-----------:|------------------|-----------------------------------|---------------------------------|
+|         15 | `v15.0.1`        | `sakiladb/postgres:15`, `:latest` | `ghcr.io/sakiladb/postgres:15`  |
+|         14 | `v14.0.1`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`  |
+|         13 | `v13.0.2`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`  |
+|         12 | `v12.0.2`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`  |
+|         11 | `v11.0.1`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`  |
+|         10 | `v10.0.1`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`  |
+|          9 | `v9.0.2`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`   |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
@@ -143,10 +143,9 @@ while the **minor** and **patch** track sakiladb's own revisions of that image. 
 patch is bumped (e.g. a rebuilt Postgres 13 image goes `v13.0.0` → `v13.0.1`), so the minor stays
 `0`.
 
-[Docker Hub](https://hub.docker.com/r/sakiladb/postgres) carries every version.
-[GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres) mirroring
-began with the June 2026 republish; a `—` marks versions not yet mirrored there (each is added as it
-is republished).
+Every version is published to both [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) and
+[GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres) (GHCR
+mirroring began with the June 2026 republish).
 
 Images are multi-arch (`linux/amd64`, `linux/arm64`) and are signed with
 [cosign](https://github.com/sigstore/cosign).
@@ -161,11 +160,16 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ### 2026-06-25
 
-- **PostgreSQL `9` republished** (`v9.0.2`) as a consistent test fixture — the same 16 tables and 7
-  views as the other [sakiladb](https://github.com/sakiladb) variants (`film_text` added, `payment`
-  partitions dropped, the Postgres-only `film.fulltext` and `customer.activebool` columns removed,
-  `payment.last_update` added). Now also mirrored to GitHub Container Registry
-  (`ghcr.io/sakiladb/postgres:9`).
+- **All PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent test
+  fixture as the other [sakiladb](https://github.com/sakiladb) variants. Each image now exposes the
+  same **16 tables and 7 views** with matching columns: `film_text` added (populated from `film`),
+  the empty `payment_p2007_*` partitions dropped, the Postgres-only `film.fulltext` and
+  `customer.activebool` columns removed, and `payment.last_update` added (with MySQL's values). The
+  June 23 republish had only reached `12`/`13` and predated the column reconciliation, so those are
+  rebuilt here too.
+- Every version now declares a Docker `HEALTHCHECK` (`pg_isready`) and is mirrored to GitHub
+  Container Registry (`ghcr.io/sakiladb/postgres:N`).
+- `latest` now points at the freshly rebuilt `15` (`v15.0.1`).
 
 ### 2026-06-23
 
