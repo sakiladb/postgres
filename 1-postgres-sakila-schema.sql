@@ -317,7 +317,7 @@ CREATE TABLE customer (
     last_name character varying(45) NOT NULL,
     email character varying(50),
     address_id smallint NOT NULL,
-    create_date date DEFAULT ('now'::text)::date NOT NULL,
+    create_date timestamp without time zone DEFAULT now() NOT NULL,
     last_update timestamp without time zone DEFAULT now(),
     active integer
 );
@@ -429,7 +429,7 @@ CREATE TABLE payment (
     payment_id integer DEFAULT nextval('payment_payment_id_seq'::regclass) NOT NULL,
     customer_id smallint NOT NULL,
     staff_id smallint NOT NULL,
-    rental_id integer NOT NULL,
+    rental_id integer,
     amount numeric(5,2) NOT NULL,
     payment_date timestamp without time zone NOT NULL,
     last_update timestamp without time zone DEFAULT now() NOT NULL
