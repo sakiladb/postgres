@@ -34,14 +34,24 @@ trimmed from the upstream jOOQ Postgres dump so it lines up with the rest of the
 
 - **`film_text`** is present (populated from `film`) for parity with the other variants. The jOOQ
   dump instead shipped a `film.fulltext` `tsvector` column (GiST index + trigger) for full-text
-  search; we removed it so `film` exposes the same columns everywhere. `film_text` is a plain
-  table — structural parity, not a working full-text index.
+  search; we removed it so `film` exposes the same columns everywhere. `film_text` keeps the same
+  three columns as every other variant, but full-text search still **works** — via a *functional*
+  GIN index (no stored `tsvector` column), so FTS is added "under" the table, invisible to the
+  schema. Mutation-maintenance triggers keep it in sync with `film` (see below).
 - **`payment` is a plain table.** The jOOQ dump's empty `payment_p2007_*` inheritance partitions are
   dropped — they were vestigial (all payment rows live in the parent) and made Postgres report 21
   tables instead of 16.
 
-These customizations live in `1-postgres-sakila-schema.sql` (with the `film_text` populate in
-`3-postgres-sakila-user.sql`), clearly commented.
+These customizations live in `1-postgres-sakila-schema.sql` (with the `film_text` populate, its FTS
+index, and the mutation triggers in `3-postgres-sakila-user.sql`), clearly commented.
+
+Beyond the table/view set, the schema is reconciled to the canonical `sakiladb/mysql` image wherever
+it's cheap and `sq`-invisible: `customer.active` is `boolean` (matching `staff.active` and MySQL's
+intent), column order / nullability / FK-column indexes match MySQL, and a set of
+**mutation-maintenance triggers** (in `3-…`) gives writable parity with MySQL — they keep `film_text`
+in sync with `film` (`ins_film` / `upd_film` / `del_film`) and stamp `create_date` / `payment_date` /
+`rental_date` on insert. All of this is invisible to `sq` (it counts tables/views, not triggers or
+column types for these tables), so the fixture contract is unchanged.
 
 ## How the image is built
 
@@ -60,9 +70,9 @@ The four init SQL files run in order, as the `sakila` superuser:
 | File | Role |
 |------|------|
 | `0-postgres-sakila-setup.sql` | Create a temporary `postgres` user (the dump is authored as `postgres`). |
-| `1-postgres-sakila-schema.sql` | Schema: tables, views, indexes. Also creates `film_text` and drops the `payment_p2007_*` partitions. |
+| `1-postgres-sakila-schema.sql` | Schema: tables, views, indexes (incl. FK-column indexes). Also creates `film_text` and drops the `payment_p2007_*` partitions. |
 | `2-postgres-sakila-insert-data.sql` | Data (`Insert into …` statements). |
-| `3-postgres-sakila-user.sql` | Populate `film_text` from `film`; reassign ownership of everything to `sakila`; drop the temp `postgres` user; log the completion message. |
+| `3-postgres-sakila-user.sql` | Populate `film_text` from `film`; add its functional FTS GIN index and the mutation-maintenance triggers; reassign ownership of everything to `sakila`; drop the temp `postgres` user; log the completion message. |
 
 This all happens at **build** time, in the dumper stage — `3-…` logs `sakiladb/postgres has
 successfully initialized.` into the build output. At **runtime** the final image just starts
@@ -186,4 +196,7 @@ and must be adapted, not blind-copied:
   `v{POSTGRES_MAJOR}.{MINOR}.{PATCH}` — the major tracks the upstream PostgreSQL version, the
   minor/patch track sakiladb's own revisions. In practice only the patch moves (the minor stays
   `0`), so release tags look like `v15.0.0`, `v15.0.1`, ….
+- **Trigger syntax must stay portable to pg 9.** The mutation triggers in `3-…` use
+  `EXECUTE PROCEDURE`, not `EXECUTE FUNCTION` — the latter is pg 11+ syntax and fails the build on
+  the older majors this image still publishes (`9`/`10`).
 - **No AI attribution** in commits, tags, PRs, or any other content.
