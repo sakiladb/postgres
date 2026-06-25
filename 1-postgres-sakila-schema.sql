@@ -319,7 +319,7 @@ CREATE TABLE customer (
     address_id smallint NOT NULL,
     create_date timestamp without time zone NOT NULL,
     last_update timestamp without time zone DEFAULT now(),
-    active integer
+    active integer DEFAULT 1 NOT NULL
 );
 
 
@@ -432,7 +432,7 @@ CREATE TABLE payment (
     rental_id integer,
     amount numeric(5,2) NOT NULL,
     payment_date timestamp without time zone NOT NULL,
-    last_update timestamp without time zone DEFAULT now() NOT NULL
+    last_update timestamp without time zone DEFAULT now()
 );
 
 
@@ -1175,6 +1175,27 @@ CREATE UNIQUE INDEX idx_unq_manager_staff_id ON store USING btree (manager_staff
 --
 
 CREATE UNIQUE INDEX idx_unq_rental_rental_date_inventory_id_customer_id ON rental USING btree (rental_date, inventory_id, customer_id);
+
+
+--
+-- Secondary indexes on foreign-key columns, for parity with sakiladb/mysql.
+--
+-- MySQL auto-creates an index on every FK column; the jOOQ Postgres port omits
+-- these (Postgres doesn't require them). They're sq-invisible (sq asserts
+-- tables/views/columns, not indexes) but bring the physical schema in line with
+-- the canonical MySQL image. Names are table-qualified because Postgres index
+-- names are schema-global, whereas MySQL's are per-table (so MySQL reuses, e.g.,
+-- idx_fk_address_id on both staff and store).
+--
+
+CREATE INDEX idx_fk_film_category_category_id ON film_category USING btree (category_id);
+CREATE INDEX idx_fk_inventory_film_id ON inventory USING btree (film_id);
+CREATE INDEX idx_fk_payment_rental_id ON payment USING btree (rental_id);
+CREATE INDEX idx_fk_rental_customer_id ON rental USING btree (customer_id);
+CREATE INDEX idx_fk_rental_staff_id ON rental USING btree (staff_id);
+CREATE INDEX idx_fk_staff_address_id ON staff USING btree (address_id);
+CREATE INDEX idx_fk_staff_store_id ON staff USING btree (store_id);
+CREATE INDEX idx_fk_store_address_id ON store USING btree (address_id);
 
 
 --
