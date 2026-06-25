@@ -101,15 +101,12 @@ staff_list                  view   2      id, name, address, zip code, phone, ci
 Every sakiladb variant exposes the **same Sakila fixture** — the same 16 tables and 7 views, with
 the same data (same row counts) — so [`sq`](https://github.com/neilotoole/sq) can assert a uniform
 schema across all of them. They all descend from the MySQL Sakila, ported to Postgres via
-[jOOQ](https://www.jooq.org/sakila). Two representation details are worth calling out:
+[jOOQ](https://www.jooq.org/sakila). One representation detail is worth calling out:
 
 - **Identifiers are lower-case.** Postgres folds unquoted identifiers, so view columns that are
   upper- or mixed-case in MySQL appear lower-case here (e.g. `customer_list.id` / `.sid` vs
   `ID` / `SID`). This is inherent to Postgres — the one unavoidable difference from the other
   variants.
-- **`address` has no `location` column.** MySQL carries a spatial `GEOMETRY` column there; this
-  image has no PostGIS dependency. (This is a tracked, temporary inconsistency being removed
-  family-wide — see [sakiladb/mysql#4](https://github.com/sakiladb/mysql/issues/4).)
 
 `film_text` is **parity, not a difference**: MySQL has a `film_text` table, so this image does too
 (populated from `film`). It is a plain table here — no full-text index — so it provides structural
