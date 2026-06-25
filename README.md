@@ -134,7 +134,7 @@ version (currently 15).
 |         12 | `v12.0.1`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12` |
 |         11 | `v11.0.0`        | `sakiladb/postgres:11`            | —                              |
 |         10 | `v10.0.0`        | `sakiladb/postgres:10`            | —                              |
-|          9 | `v9.0.0`         | `sakiladb/postgres:9`             | —                              |
+|          9 | `v9.0.2`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`  |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
@@ -158,6 +158,14 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 [CLAUDE.md](./CLAUDE.md) for the full, repeatable procedure.
 
 ## Changelog
+
+### 2026-06-25
+
+- **PostgreSQL `9` republished** (`v9.0.2`) as a consistent test fixture — the same 16 tables and 7
+  views as the other [sakiladb](https://github.com/sakiladb) variants (`film_text` added, `payment`
+  partitions dropped, the Postgres-only `film.fulltext` and `customer.activebool` columns removed,
+  `payment.last_update` added). Now also mirrored to GitHub Container Registry
+  (`ghcr.io/sakiladb/postgres:9`).
 
 ### 2026-06-23
 
