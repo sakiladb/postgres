@@ -167,6 +167,25 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ## Changelog
 
+### Unreleased
+
+Postgres brought to full parity with the canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql)
+image — a faithful, **writable** Sakila — with **no change to the 16-table / 7-view fixture**
+(every addition below is invisible to schema introspection). To ship in the next republish wave:
+
+- **Mutation-maintenance triggers, matching MySQL.** `film_text` now stays in sync with `film`
+  (`ins_film` / `upd_film` / `del_film`); `customer.create_date`, `payment.payment_date`, and
+  `rental.rental_date` are stamped with `NOW()` on insert; and `payment.last_update` bumps on update
+  (the one `last_updated` trigger pagila omits). The functional GIN full-text index rides along, so
+  full-text search stays correct under mutation. Triggers govern only post-build mutations — the
+  historical data is unchanged.
+- **`active` columns typed as `boolean`.** `customer.active` is now `boolean` (was `integer`), so it
+  matches `staff.active` and MySQL's `BOOLEAN`; it is `NOT NULL DEFAULT true`, and `payment.last_update`
+  is now nullable, both mirroring MySQL.
+- **Secondary indexes on foreign-key columns.** Added the FK-column indexes MySQL auto-creates but
+  the jOOQ port omitted (`film_category`, `inventory`, `payment`, `rental`, `staff`, `store`), so
+  per-table index counts now match MySQL.
+
 ### 2026-06-25
 
 - **All existing PostgreSQL versions (`9`–`15`) republished** so every tag is the same consistent
