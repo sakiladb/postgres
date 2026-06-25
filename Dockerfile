@@ -1,7 +1,7 @@
 # PostgreSQL major version to build. The CI release workflow overrides this per
 # release, deriving it from the git tag (e.g. v14.0.1 -> 14). The default is the
 # newest version, for convenient local `docker build`.
-ARG PG_VERSION=15
+ARG PG_VERSION=18
 
 FROM postgres:${PG_VERSION}-alpine AS dumper
 

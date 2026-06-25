@@ -24,7 +24,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
   # The newest PostgreSQL major version: the single source of truth for which
   # release gets the `latest` tag. Bump this when releasing a new newest major.
-  LATEST_MAJOR: "15"
+  LATEST_MAJOR: "18"
 
 
 jobs:
