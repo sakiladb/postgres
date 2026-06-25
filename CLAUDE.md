@@ -29,12 +29,12 @@ per-table column/count constants), `libsq/driver/driver_test.go` (per-image tabl
 ## The dataset
 
 The standard Sakila database, preloaded and owned by the `sakila` user: **16 tables + 7 views**,
-kept consistent with the canonical MySQL Sakila. Two ways this image is trimmed from the upstream
-jOOQ Postgres dump so it matches MySQL:
+kept consistent with the other sakiladb variants (the `sq` fixture contract). Two ways this image is
+trimmed from the upstream jOOQ Postgres dump so it lines up with the rest of the family:
 
-- **`film_text`** is present (populated from `film`) for parity with MySQL and the other variants.
-  The jOOQ dump instead shipped a `film.fulltext` `tsvector` column (GiST index + trigger) for
-  full-text search; we removed it so `film` has the same columns as MySQL. `film_text` is a plain
+- **`film_text`** is present (populated from `film`) for parity with the other variants. The jOOQ
+  dump instead shipped a `film.fulltext` `tsvector` column (GiST index + trigger) for full-text
+  search; we removed it so `film` exposes the same columns everywhere. `film_text` is a plain
   table — structural parity, not a working full-text index.
 - **`payment` is a plain table.** The jOOQ dump's empty `payment_p2007_*` inheritance partitions are
   dropped — they were vestigial (all payment rows live in the parent) and made Postgres report 21
@@ -144,14 +144,40 @@ After any release:
 1. **Verify the published artifact** — pull the image, confirm the schema (`16 tables + 7 views`)
    and the PostgreSQL version, and confirm `latest` still points at the newest major.
 2. **Update the README "Available versions" table** — it is maintained by hand. Set the row's
-   **Release** cell to the new tag (e.g. `v14.0.1`), and fill in the **GitHub Container Registry**
-   cell (replace `—` with `ghcr.io/sakiladb/postgres:N`) the first time a version is published under
-   the GHCR-enabled workflow. Add a dated **Changelog** entry if the change is user-visible.
+   **sakiladb Release** cell to the new tag (e.g. `v14.0.1`); for a brand-new major, add the row
+   with its **Docker Hub** and **GitHub Container Registry** cells. When the newest major changes,
+   move the `:latest` annotation to the new top row. Add a dated **Changelog** entry if the change
+   is user-visible.
 
 > **Legacy branches.** Earlier releases used one long-lived `postgres-N` branch per version. Those
 > branches were obsolete under the tag-driven model and have been deleted (June 2026); `master` is now
 > the only branch. The immutable `vN.0.x` tags preserve every release (`git checkout vN.0.x` rebuilds
 > it exactly).
+
+## Porting this template to another sakiladb variant
+
+This repo (README + CLAUDE.md + `Dockerfile` + workflow) is the reference template for the family.
+The **release machinery** — the tag-driven workflow, `latest` gating, multi-registry push, and
+cosign signing — is identical everywhere and should be copied as-is. Everything below is per-engine
+and must be adapted, not blind-copied:
+
+- **Identity.** Image name, default port (`5432`), engine name, the `sq` driver-guide link, and the
+  lineage sentence. Note `sakiladb/mysql` is the *origin* of the family, **not** a jOOQ Postgres
+  port — its lineage wording differs ("the MySQL Sakila", full stop).
+- **HEALTHCHECK probe.** Swap `pg_isready` for the engine's native probe (`mysqladmin ping`,
+  `sqlcmd … SELECT 1`, …). The readiness *contract* (`healthy` = ready to serve) stays uniform.
+- **Architectures.** Do **not** blind-copy "multi-arch (`amd64`, `arm64`)". `sakiladb/sqlserver` is
+  **amd64-only**. State the arches the image actually publishes.
+- **The "Differences" section is engine-specific.** Postgres folds identifiers to lower-case; Oracle
+  upper-cases and caps identifiers at 30 chars; ClickHouse is columnar; rqlite is SQLite. Rewrite it
+  per engine — don't carry over Postgres's quirks.
+- **Version scheme & table.** The major tracks the engine's upstream version, numbered differently
+  per engine (PostgreSQL `9`–`18`, MySQL `5.6`/`5.7`/`8`, SQL Server `2017`/`2019`/…, Oracle `23`).
+  Adjust the scheme explanation and the "Available versions" rows; set `LATEST_MAJOR` to that
+  engine's newest major.
+- **Schema customizations.** The `film_text` / partition trimming here is PG-specific. Each variant
+  reconciles to the same **16 tables + 7 views** in its own way; keep `sq`'s expectations
+  (`testh/sakila/sakila.go`) in lockstep — a schema change is always a cross-repo change.
 
 ## Conventions
 

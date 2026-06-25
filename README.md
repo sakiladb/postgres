@@ -98,20 +98,22 @@ staff_list                  view   2      id, name, address, zip code, phone, ci
 
 ## Differences from other sakila variants
 
-Every sakiladb variant is the same database — the MySQL Sakila, ported via
-[jOOQ](https://www.jooq.org/sakila). The Postgres port represents a few things idiomatically, so a
-few schema details differ from MySQL. The **data is identical** (same row counts); these are schema
-differences:
+Every sakiladb variant exposes the **same Sakila fixture** — the same 16 tables and 7 views, with
+the same data (same row counts) — so [`sq`](https://github.com/neilotoole/sq) can assert a uniform
+schema across all of them. They all descend from the MySQL Sakila, ported to Postgres via
+[jOOQ](https://www.jooq.org/sakila). Two representation details are worth calling out:
 
-- **`address` has no `location` column** — MySQL carries a spatial `GEOMETRY` column there; this
-  image has no PostGIS dependency.
 - **Identifiers are lower-case.** Postgres folds unquoted identifiers, so view columns that are
   upper- or mixed-case in MySQL appear lower-case here (e.g. `customer_list.id` / `.sid` vs
-  `ID` / `SID`).
+  `ID` / `SID`). This is inherent to Postgres — the one unavoidable difference from the other
+  variants.
+- **`address` has no `location` column.** MySQL carries a spatial `GEOMETRY` column there; this
+  image has no PostGIS dependency. (This is a tracked, temporary inconsistency being removed
+  family-wide — see [sakiladb/mysql#4](https://github.com/sakiladb/mysql/issues/4).)
 
-Full-text search is represented the MySQL way — by a `film_text` table (populated from `film`). It
-is a plain table here (no full-text index), so it provides structural parity rather than working
-full-text search.
+`film_text` is **parity, not a difference**: MySQL has a `film_text` table, so this image does too
+(populated from `film`). It is a plain table here — no full-text index — so it provides structural
+parity rather than working full-text search.
 
 ### Not pagila
 
@@ -181,9 +183,9 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 - **PostgreSQL `12` and `13` republished** to match the other
   [sakiladb](https://github.com/sakiladb) variants as a consistent test fixture: added the
   `film_text` table (populated from `film`) and dropped the empty `payment_p2007_*` partitions, so
-  the images now expose the same 16 tables and 7 views as the other variants. Postgres still
-  provides full-text search via the `film.fulltext` column; `film_text` is added for cross-variant
-  parity. (Remaining versions follow.)
+  the images expose the same 16 tables and 7 views as the other variants. (These interim images —
+  `v12.0.1` / `v13.0.1` — were superseded two days later by the 2026-06-25 rebuild, which also
+  reconciled columns and added the HEALTHCHECK.)
 - Images are now also published to GitHub Container Registry (`ghcr.io/sakiladb/postgres`).
 - Modernized the GitHub Actions release workflow: current action versions, and a fix for cosign
   image signing.
