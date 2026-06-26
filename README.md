@@ -172,10 +172,10 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 Restored the Sakila **data** to be byte-identical to the original MySQL Sakila (`v9.0.5`–`v18.0.3`,
 republished all majors). The object set is unchanged (16 tables + 7 views):
 
-- **Accents restored** — the Unicode characters the lineage had stripped from international place names
+- **Accents restored.** The Unicode characters the lineage had stripped from international place names
   (e.g. `Réunion`, `Coruña`, `Huánuco`) are back.
-- **`address.phone` restored** — the real phone numbers the jOOQ-Postgres lineage had blanked.
-- **`address.district` restored** — the full district column the jOOQ-Postgres lineage had blanked.
+- **`address.phone` restored.** The real phone numbers the jOOQ-Postgres lineage had blanked.
+- **`address.district` restored.** The full district column the jOOQ-Postgres lineage had blanked.
 
 ### 2026-06-25
 
