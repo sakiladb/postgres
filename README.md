@@ -169,7 +169,7 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ### 2026-06-26
 
-Restored the Sakila **data** to be byte-identical to the original MySQL Sakila (`v9.0.5`–`v18.0.3`,
+Restored the Sakila **data** to be byte-identical to the original MySQL Sakila (`v9.0.5` to `v18.0.3`,
 republished all majors). The object set is unchanged (16 tables + 7 views):
 
 - **Accents restored.** The Unicode characters the lineage had stripped from international place names
