@@ -134,16 +134,16 @@ version (currently 18).
 
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
-|         18 | `v18.0.1`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
-|         17 | `v17.0.1`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
-|         16 | `v16.0.1`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
-|         15 | `v15.0.2`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
-|         14 | `v14.0.2`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
-|         13 | `v13.0.3`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
-|         12 | `v12.0.3`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
-|         11 | `v11.0.2`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
-|         10 | `v10.0.2`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
-|          9 | `v9.0.3`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
+|         18 | `v18.0.2`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
+|         17 | `v17.0.2`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
+|         16 | `v16.0.2`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
+|         15 | `v15.0.3`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
+|         14 | `v14.0.3`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
+|         13 | `v13.0.4`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
+|         12 | `v12.0.4`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
+|         11 | `v11.0.3`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
+|         10 | `v10.0.3`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
+|          9 | `v9.0.4`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
@@ -169,7 +169,7 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ### 2026-06-25
 
-Republished every version (`v9.0.3`–`v18.0.1`) and published `16`/`17`/`18` for the first time, so
+Republished every version (`v9.0.4`–`v18.0.4`) and published `16`/`17`/`18` for the first time, so
 all majors `9`–`18` are now the same consistent test fixture as the other
 [sakiladb](https://github.com/sakiladb) variants — **16 tables and 7 views** — reconciled to the
 canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image. Net changes:
@@ -182,6 +182,9 @@ canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image. Net
 - **Writable parity with MySQL.** Mutation-maintenance triggers keep `film_text` in sync with `film`,
   stamp `create_date` / `payment_date` / `rental_date` on insert, and bump `last_update` on update —
   all invisible to the fixture's schema.
+- **Deterministic view output.** `film_list`, `nicer_but_slower_film_list`, and `actor_info` now sort
+  their aggregated columns (cast lists by actor name, films by title), so the views render identically
+  across the sakiladb family instead of in arbitrary aggregation order.
 - **`latest` now tracks PostgreSQL `18`** (moved up from `15`).
 - Every image declares a Docker `HEALTHCHECK` (`pg_isready`) and is mirrored to GitHub Container
   Registry (`ghcr.io/sakiladb/postgres`).
