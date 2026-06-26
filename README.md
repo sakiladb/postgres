@@ -134,16 +134,16 @@ version (currently 18).
 
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
-|         18 | `v18.0.2`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
-|         17 | `v17.0.2`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
-|         16 | `v16.0.2`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
-|         15 | `v15.0.3`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
-|         14 | `v14.0.3`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
-|         13 | `v13.0.4`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
-|         12 | `v12.0.4`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
-|         11 | `v11.0.3`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
-|         10 | `v10.0.3`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
-|          9 | `v9.0.4`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
+|         18 | `v18.0.3`        | `sakiladb/postgres:18`, `:latest` | `ghcr.io/sakiladb/postgres:18`, `:latest` |
+|         17 | `v17.0.3`        | `sakiladb/postgres:17`            | `ghcr.io/sakiladb/postgres:17`            |
+|         16 | `v16.0.3`        | `sakiladb/postgres:16`            | `ghcr.io/sakiladb/postgres:16`            |
+|         15 | `v15.0.4`        | `sakiladb/postgres:15`            | `ghcr.io/sakiladb/postgres:15`            |
+|         14 | `v14.0.4`        | `sakiladb/postgres:14`            | `ghcr.io/sakiladb/postgres:14`            |
+|         13 | `v13.0.5`        | `sakiladb/postgres:13`            | `ghcr.io/sakiladb/postgres:13`            |
+|         12 | `v12.0.5`        | `sakiladb/postgres:12`            | `ghcr.io/sakiladb/postgres:12`            |
+|         11 | `v11.0.4`        | `sakiladb/postgres:11`            | `ghcr.io/sakiladb/postgres:11`            |
+|         10 | `v10.0.4`        | `sakiladb/postgres:10`            | `ghcr.io/sakiladb/postgres:10`            |
+|          9 | `v9.0.5`         | `sakiladb/postgres:9`             | `ghcr.io/sakiladb/postgres:9`             |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
@@ -167,9 +167,19 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 
 ## Changelog
 
+### 2026-06-26
+
+Restored the Sakila **data** to be byte-identical to the original MySQL Sakila (`v9.0.5`–`v18.0.3`,
+republished all majors). The object set is unchanged (16 tables + 7 views):
+
+- **Accents restored** — the Unicode characters the lineage had stripped from international place names
+  (e.g. `Réunion`, `Coruña`, `Huánuco`) are back.
+- **`address.phone` restored** — the real phone numbers the jOOQ-Postgres lineage had blanked.
+- **`address.district` restored** — the full district column the jOOQ-Postgres lineage had blanked.
+
 ### 2026-06-25
 
-Republished every version (`v9.0.4`–`v18.0.4`) and published `16`/`17`/`18` for the first time, so
+Republished every version (`v9.0.4`–`v18.0.2`) and published `16`/`17`/`18` for the first time, so
 all majors `9`–`18` are now the same consistent test fixture as the other
 [sakiladb](https://github.com/sakiladb) variants — **16 tables and 7 views** — reconciled to the
 canonical [`sakiladb/mysql`](https://hub.docker.com/r/sakiladb/mysql) image. Net changes:
