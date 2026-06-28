@@ -1,3 +1,8 @@
+# check=skip=SecretsUsedInArgOrEnv
+# ^ The *_PASSWORD values below are the public, documented Sakila fixture
+#   credential (p_ssW0rd) — these are throwaway test-fixture images with a
+#   fixed, published password, not a secret. This lint rule is skipped.
+
 # PostgreSQL major version to build. The CI release workflow overrides this per
 # release, deriving it from the git tag (e.g. v14.0.1 -> 14). The default is the
 # newest version, for convenient local `docker build`.
