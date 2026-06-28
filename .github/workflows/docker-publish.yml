@@ -48,7 +48,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # Determine which PostgreSQL major version to build:
       #   - tag push (v14.0.1)        -> the tag's major (14)
