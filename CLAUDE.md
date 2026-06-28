@@ -87,9 +87,10 @@ logs. `pg_isready` can exit `2`/`3` (values Docker reserves), so the check norma
 exit `1`. The `sakila` user/db are hardcoded because the final stage does not carry the build
 stage's `POSTGRES_*` env vars.
 
-> **Family convention:** every `sakiladb` image should declare a `HEALTHCHECK` using its engine's
-> native readiness probe (`pg_isready`, `mysqladmin ping`, `sqlcmd … SELECT 1`, …). The probe
-> command differs per engine; the readiness *contract* (`healthy` = ready to serve) is uniform.
+> **Family convention:** every `sakiladb` image declares a `HEALTHCHECK` using its engine's
+> native readiness probe (`pg_isready`, `mysqladmin ping`, `sqlcmd … SELECT 1`,
+> `healthcheck.sh SAKILA`, …). The probe command differs per engine; the readiness *contract*
+> (`healthy` = ready to serve) is uniform.
 
 ## How releases work
 
