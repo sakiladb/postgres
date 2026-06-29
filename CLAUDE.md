@@ -5,7 +5,7 @@ Maintainer guide for **`sakiladb/postgres`** — a PostgreSQL Docker image prelo
 published to [Docker Hub](https://hub.docker.com/r/sakiladb/postgres) and
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres).
 
-> One of the [`sakiladb`](https://github.com/sakiladb) image family (`postgres`, `mysql`,
+> One of the [`sakiladb`](https://github.com/sakiladb) image family (`postgres`, `mysql`, `mariadb`,
 > `sqlserver`, `oracle`, `clickhouse`, `rqlite`). The release machinery in
 > [How releases work](#how-releases-work) is **shared across the family**; the build details
 > in [How the image is built](#how-the-image-is-built) are **PostgreSQL-specific**. The org-level
