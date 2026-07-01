@@ -222,22 +222,26 @@ jobs:
           format: spdx-json
           output-file: sbom.spdx.json
 
+      # Uses the unified actions/attest (actions/attest-sbom is deprecated). The
+      # SPDX document is the predicate; predicate-type is the SPDX in-toto type.
       - name: Attest SBOM (Docker Hub)
         if: ${{ env.IS_RELEASE == 'true' }}
-        uses: actions/attest-sbom@v4
+        uses: actions/attest@v4
         with:
           subject-name: ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
-          sbom-path: sbom.spdx.json
+          predicate-type: https://spdx.dev/Document
+          predicate-path: sbom.spdx.json
           push-to-registry: true
 
       - name: Attest SBOM (GHCR)
         if: ${{ env.IS_RELEASE == 'true' }}
-        uses: actions/attest-sbom@v4
+        uses: actions/attest@v4
         with:
           subject-name: ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
-          sbom-path: sbom.spdx.json
+          predicate-type: https://spdx.dev/Document
+          predicate-path: sbom.spdx.json
           push-to-registry: true
 
       # Sync this repo's README to the Docker Hub repository's full description
