@@ -162,11 +162,9 @@ Every version is published to both [Docker Hub](https://hub.docker.com/r/sakilad
 mirroring began with the June 2026 republish).
 
 Images are multi-arch (`linux/amd64`, `linux/arm64`), signed with
-[cosign](https://github.com/sigstore/cosign), and carry
-[SLSA build provenance](https://slsa.dev/) plus an SPDX
-[SBOM](https://spdx.dev/) attestation. Both are attached to the image on Docker
-Hub and GHCR and recorded in GitHub's attestation store; verify with
-`gh attestation verify oci://ghcr.io/sakiladb/postgres:18 --repo sakiladb/postgres`.
+[cosign](https://github.com/sigstore/cosign). Each image also carries
+[SLSA build provenance](https://slsa.dev/) and an SPDX [SBOM](https://spdx.dev/) attestation
+(verify with `gh attestation verify`).
 
 ## Releasing a new version
 
