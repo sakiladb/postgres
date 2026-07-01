@@ -3,12 +3,26 @@ name: Docker
 on:
   push:
     branches: [ "master" ]
-    # Publish semver tags as releases. The major version to build is derived
-    # from the tag, e.g. v14.0.1 builds PostgreSQL 14 (see the "Determine
-    # PostgreSQL major version" step).
-    tags: [ 'v*.*.*' ]
+    # Numeric semver only - rejects typo'd tags like 'vfoo.bar.baz' which would
+    # otherwise trigger a release build that emits no tags. The major version to
+    # build is derived from the tag, e.g. v14.0.1 builds PostgreSQL 14 (see the
+    # "Determine PostgreSQL major version" step).
+    tags: [ 'v[0-9]+.[0-9]+.[0-9]+' ]
+    # Skip the build for changes that can't affect the built image. paths-ignore
+    # is OR'd, so a commit touching only these files is skipped; a commit that
+    # also touches a build-relevant file still runs.
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'docker-run.sh'
   pull_request:
     branches: [ "master" ]
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'docker-run.sh'
   # Manual build of an arbitrary major version (smoke test only, never publishes).
   workflow_dispatch:
     inputs:
@@ -16,6 +30,12 @@ on:
         description: "PostgreSQL major version to build (e.g. 14). Smoke test, no publish."
         required: false
         default: ""
+
+# Cancel superseded in-progress runs on the same branch/PR; never cancel an
+# in-flight tag (release) run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   REGISTRY_DOCKERHUB: docker.io
