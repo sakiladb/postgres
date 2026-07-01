@@ -209,6 +209,37 @@ jobs:
           subject-digest: ${{ steps.build-and-push.outputs.digest }}
           push-to-registry: true
 
+      # Software Bill of Materials: scan the pushed image and attest the SPDX
+      # SBOM to each registry as an OCI referrer, mirroring the provenance steps
+      # above. anchore/sbom-action (syft) scans the linux/amd64 image (the
+      # runner's arch); both arches carry the same packages, so one SBOM is
+      # attested against the multi-arch index digest.
+      - name: Generate SBOM
+        if: ${{ env.IS_RELEASE == 'true' }}
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610  # v0.24.0
+        with:
+          image: ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME }}@${{ steps.build-and-push.outputs.digest }}
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Attest SBOM (Docker Hub)
+        if: ${{ env.IS_RELEASE == 'true' }}
+        uses: actions/attest-sbom@v4
+        with:
+          subject-name: ${{ env.REGISTRY_DOCKERHUB }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          sbom-path: sbom.spdx.json
+          push-to-registry: true
+
+      - name: Attest SBOM (GHCR)
+        if: ${{ env.IS_RELEASE == 'true' }}
+        uses: actions/attest-sbom@v4
+        with:
+          subject-name: ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.build-and-push.outputs.digest }}
+          sbom-path: sbom.spdx.json
+          push-to-registry: true
+
       # Sync this repo's README to the Docker Hub repository's full description
       # on release (cosmetic; the image is already published above). The curated
       # short description is left untouched (no short-description input).
