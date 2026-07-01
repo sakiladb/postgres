@@ -140,15 +140,15 @@ version (currently 18).
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
 |         18 | `v18.0.10`       | [`sakiladb/postgres:18`](https://hub.docker.com/r/sakiladb/postgres), [`:latest`](https://hub.docker.com/r/sakiladb/postgres) | [`ghcr.io/sakiladb/postgres:18`](https://github.com/sakiladb/postgres/pkgs/container/postgres), [`:latest`](https://github.com/sakiladb/postgres/pkgs/container/postgres) |
-|         17 | `v17.0.3`        | [`sakiladb/postgres:17`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:17`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         16 | `v16.0.3`        | [`sakiladb/postgres:16`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:16`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         15 | `v15.0.4`        | [`sakiladb/postgres:15`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:15`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         14 | `v14.0.4`        | [`sakiladb/postgres:14`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:14`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         13 | `v13.0.5`        | [`sakiladb/postgres:13`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:13`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         12 | `v12.0.5`        | [`sakiladb/postgres:12`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:12`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         11 | `v11.0.4`        | [`sakiladb/postgres:11`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:11`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|         10 | `v10.0.4`        | [`sakiladb/postgres:10`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:10`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
-|          9 | `v9.0.5`         | [`sakiladb/postgres:9`](https://hub.docker.com/r/sakiladb/postgres)             | [`ghcr.io/sakiladb/postgres:9`](https://github.com/sakiladb/postgres/pkgs/container/postgres)             |
+|         17 | `v17.0.4`        | [`sakiladb/postgres:17`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:17`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         16 | `v16.0.4`        | [`sakiladb/postgres:16`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:16`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         15 | `v15.0.5`        | [`sakiladb/postgres:15`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:15`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         14 | `v14.0.5`        | [`sakiladb/postgres:14`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:14`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         13 | `v13.0.6`        | [`sakiladb/postgres:13`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:13`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         12 | `v12.0.6`        | [`sakiladb/postgres:12`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:12`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         11 | `v11.0.5`        | [`sakiladb/postgres:11`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:11`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|         10 | `v10.0.5`        | [`sakiladb/postgres:10`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:10`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
+|          9 | `v9.0.6`         | [`sakiladb/postgres:9`](https://hub.docker.com/r/sakiladb/postgres)             | [`ghcr.io/sakiladb/postgres:9`](https://github.com/sakiladb/postgres/pkgs/container/postgres)             |
 
 **sakiladb Release** is the git tag the current image was built from (see
 [releases](https://github.com/sakiladb/postgres/releases)). Its version is
