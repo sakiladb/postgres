@@ -139,7 +139,7 @@ version (currently 18).
 
 | PostgreSQL | sakiladb Release | Docker Hub                        | GitHub Container Registry                 |
 |-----------:|------------------|-----------------------------------|-------------------------------------------|
-|         18 | `v18.0.4`        | [`sakiladb/postgres:18`](https://hub.docker.com/r/sakiladb/postgres), [`:latest`](https://hub.docker.com/r/sakiladb/postgres) | [`ghcr.io/sakiladb/postgres:18`](https://github.com/sakiladb/postgres/pkgs/container/postgres), [`:latest`](https://github.com/sakiladb/postgres/pkgs/container/postgres) |
+|         18 | `v18.0.9`        | [`sakiladb/postgres:18`](https://hub.docker.com/r/sakiladb/postgres), [`:latest`](https://hub.docker.com/r/sakiladb/postgres) | [`ghcr.io/sakiladb/postgres:18`](https://github.com/sakiladb/postgres/pkgs/container/postgres), [`:latest`](https://github.com/sakiladb/postgres/pkgs/container/postgres) |
 |         17 | `v17.0.3`        | [`sakiladb/postgres:17`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:17`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
 |         16 | `v16.0.3`        | [`sakiladb/postgres:16`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:16`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
 |         15 | `v15.0.4`        | [`sakiladb/postgres:15`](https://hub.docker.com/r/sakiladb/postgres)            | [`ghcr.io/sakiladb/postgres:15`](https://github.com/sakiladb/postgres/pkgs/container/postgres)            |
@@ -161,8 +161,12 @@ Every version is published to both [Docker Hub](https://hub.docker.com/r/sakilad
 [GitHub Container Registry](https://github.com/sakiladb/postgres/pkgs/container/postgres) (GHCR
 mirroring began with the June 2026 republish).
 
-Images are multi-arch (`linux/amd64`, `linux/arm64`) and are signed with
-[cosign](https://github.com/sigstore/cosign).
+Images are multi-arch (`linux/amd64`, `linux/arm64`), signed with
+[cosign](https://github.com/sigstore/cosign), and carry
+[SLSA build provenance](https://slsa.dev/) plus an SPDX
+[SBOM](https://spdx.dev/) attestation. Both are attached to the image on Docker
+Hub and GHCR and recorded in GitHub's attestation store; verify with
+`gh attestation verify oci://ghcr.io/sakiladb/postgres:18 --repo sakiladb/postgres`.
 
 ## Releasing a new version
 
@@ -171,6 +175,17 @@ PostgreSQL N — the version is derived from the tag, so there are no per-versio
 [CLAUDE.md](./CLAUDE.md) for the full, repeatable procedure.
 
 ## Changelog
+
+### 2026-06-30
+
+- **Supply-chain attestations** (`v18.0.9`): published images now carry
+  [SLSA build provenance](https://slsa.dev/) and an SPDX
+  [SBOM](https://spdx.dev/) attestation, alongside the existing cosign signature.
+  Both are pushed to Docker Hub and GHCR as OCI referrers and to GitHub's
+  attestation store (verify with `gh attestation verify`). The README is now also
+  synced to the Docker Hub repository description on release, and the workflow
+  triggers were harmonized (numeric tag filter, docs-only `paths-ignore`,
+  concurrency, manual dispatch). The Sakila dataset and schema are unchanged.
 
 ### 2026-06-28
 
