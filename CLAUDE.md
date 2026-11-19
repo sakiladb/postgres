@@ -100,14 +100,18 @@ Releases are **tag-driven**. There is a single long-lived branch, `master`, and 
 tag `vN.0.x` publishes PostgreSQL N**. The major version is read from the tag name, so the tag is
 the sole source of truth for what gets built — there are **no per-version branches**.
 
-- `.github/workflows/docker-publish.yml` builds on every push / PR / tag, but **only pushes to a
-  registry on `v*.*.*` tags** (`push: ${{ startsWith(github.ref, 'refs/tags/v') … }}`). Branch
-  pushes, PRs, and manual `workflow_dispatch` runs are build-only smoke tests.
-- The **"Determine PostgreSQL major version" step** computes the major: from the tag (`v14.0.1` →
-  `14`) on a tag push; from the `pg_version` input on a manual run; otherwise `LATEST_MAJOR`. It is
-  passed to the build as `--build-arg PG_VERSION=N`, and the `Dockerfile`'s
-  `FROM postgres:${PG_VERSION}-alpine` builds the matching image. The step validates that the major
-  is digits-only.
+- `.github/workflows/docker-publish.yml` builds on every push / PR / tag, but publishes only on a
+  release. There is **one release predicate, `IS_RELEASE`**: true only for a *push* of a `v*.*.*`
+  tag (`github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')`). Every publishing
+  step (registry login, image push, `latest`, cosign, attestations, README sync) is gated on it.
+  Branch pushes, PRs, and manual `workflow_dispatch` runs are build-only smoke tests, **including a
+  manual run against a tag ref**, which would otherwise let a `pg_version` input publish a different
+  PostgreSQL under the tag's name.
+- The **"Determine PostgreSQL major version" step** computes the major: on a release, always from
+  the tag (`v14.0.1` → `14`), ignoring any input; on a build-only run, from the `pg_version` input if
+  given, else the tag (if run against one), else `LATEST_MAJOR`. It is passed to the build as
+  `--build-arg PG_VERSION=N`, and the `Dockerfile`'s `FROM postgres:${PG_VERSION}-alpine` builds the
+  matching image. The step validates that the major is digits-only.
 - The tag produces the Docker tag **`{{major}}`** (`v14.0.1` → `14`), built multi-arch
   (`linux/amd64,linux/arm64`), pushed to **both Docker Hub and GHCR**, and **cosign-signed**.
 
@@ -153,10 +157,18 @@ The release also syncs this README to the Docker Hub repository description (`pe
 ### The `latest` tag
 
 `latest` must always point at the **newest** major version. The workflow never auto-assigns it
-(`flavor: latest=false`); it emits `latest` **only when the tag's major equals the `LATEST_MAJOR`
-env var** in the workflow. That env var is the one piece of state that cannot be derived from a tag
-("which major is currently newest"). Because `latest` is gated on a fixed value rather than push
-order, **tag-push order is irrelevant** and republishing an old version can never steal `latest`.
+(`flavor: latest=false`); it emits `latest` **only when a release's major equals the `LATEST_MAJOR`
+env var as currently set on the default branch**. That env var is the one piece of state that cannot
+be derived from a tag ("which major is currently newest"). The version step fetches it from `master`
+at run time (`gh api …/contents/.github/workflows/docker-publish.yml?ref=<default branch>`), sets an
+`is_latest` output that the metadata step keys on, and fails the release if the value can't be read.
+
+It deliberately does not trust the tagged commit's own copy of `LATEST_MAJOR`: re-running an old
+release run (or tagging an old commit) uses that commit's workflow, which still names itself as
+newest, and would otherwise move `latest` backwards. So **tag-push order and re-runs are both
+irrelevant**, and republishing an old version can never steal `latest`. Corollary: the
+`LATEST_MAJOR` bump must be **on `master` before** the new tag is pushed (the recipe below does
+this), or that release won't get `latest`.
 
 ### Recipe: release a new major version (e.g. Postgres 19)
 
@@ -172,7 +184,9 @@ git tag v19.0.0 && git push origin v19.0.0
 ```
 
 That's it — no new branch, and nothing to "demote": the previous newest stops getting `latest`
-automatically, because `latest` now keys off `LATEST_MAJOR`.
+automatically, because `latest` now keys off `LATEST_MAJOR`. Step order matters: push the bump to
+`master` (step 1) before pushing the tag (step 3), since the release reads `LATEST_MAJOR` from
+`master`.
 
 ### Recipe: republish or build any version (e.g. rebuild Postgres 14)
 
@@ -187,7 +201,8 @@ git tag v14.0.1 && git push origin v14.0.1   # builds & publishes `14`; `latest`
 
 To preview an arbitrary version's build **without** publishing, run the workflow manually
 (GitHub ▸ Actions ▸ Docker ▸ Run workflow ▸ `pg_version = 14`), or build locally:
-`docker build --build-arg PG_VERSION=14 .`.
+`docker build --build-arg PG_VERSION=14 .`. A manual run never publishes, whatever ref it is run
+against.
 
 After any release:
 
@@ -207,9 +222,12 @@ After any release:
 ## Porting this template to another sakiladb variant
 
 This repo (README + CLAUDE.md + `Dockerfile` + workflow) is the reference template for the family.
-The **release machinery** — the tag-driven workflow, `latest` gating, multi-registry push, and
-cosign signing — is identical everywhere and should be copied as-is. Everything below is per-engine
-and must be adapted, not blind-copied:
+The **release machinery** — the tag-driven workflow, the single `IS_RELEASE` (push-of-a-tag)
+publish gate, `latest` gating against the default branch's `LATEST_MAJOR`, multi-registry push, and
+cosign signing — is identical everywhere and should be copied as-is. Two properties must survive any
+port: a manual run never publishes (even against a tag ref, and a release ignores the version
+input), and `latest` is decided from the default branch at run time, never from the tagged commit.
+Everything below is per-engine and must be adapted, not blind-copied:
 
 - **Identity.** Image name, default port (`5432`), engine name, the `sq` driver-guide link, and the
   lineage sentence. Note `sakiladb/mysql` is the *origin* of the family, **not** a jOOQ Postgres
