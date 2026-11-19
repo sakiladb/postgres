@@ -23,7 +23,8 @@ on:
       - '.gitignore'
       - 'LICENSE'
       - 'docker-run.sh'
-  # Manual build of an arbitrary major version (smoke test only, never publishes).
+  # Manual build of an arbitrary major version (smoke test only, never publishes,
+  # even when run against a tag ref: see IS_RELEASE).
   workflow_dispatch:
     inputs:
       pg_version:
@@ -42,12 +43,19 @@ env:
   REGISTRY_GHCR: ghcr.io
   # github.repository as <account>/<repo>
   IMAGE_NAME: ${{ github.repository }}
-  # login is only needed when we actually push (on tag pushes); gating it
-  # here keeps PR/branch builds green, incl. Dependabot/fork PRs that have
-  # no access to the registry secrets.
-  IS_RELEASE: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
+  # The single release predicate: true only for a *push* of a release tag.
+  # Everything that publishes (registry login, image push, `latest`, signing,
+  # attestations, README sync) is gated on it. Requiring the push event matters:
+  # workflow_dispatch can be run against a tag ref, and with a `pg_version`
+  # input that would otherwise publish a different PostgreSQL under the tag's
+  # name. Manual runs, branch pushes and PRs (incl. Dependabot/fork PRs with no
+  # registry secrets) are always build-only.
+  IS_RELEASE: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
   # The newest PostgreSQL major version: the single source of truth for which
-  # release gets the `latest` tag. Bump this when releasing a new newest major.
+  # release gets the `latest` tag, and what branch pushes / PRs build. Bump this
+  # when releasing a new newest major. For the `latest` decision a release reads
+  # this value from the default branch at run time, not from the tagged commit
+  # (see the "Determine PostgreSQL major version" step).
   LATEST_MAJOR: "18"
 
 
@@ -76,16 +84,25 @@ jobs:
       #   - tag push (v14.0.1)        -> the tag's major (14)
       #   - manual run with an input  -> that input
       #   - branch push / PR          -> LATEST_MAJOR (build the newest)
-      # The result drives both the build-arg and the `latest` tag decision below,
-      # so the git tag is the single source of truth for a release's version.
+      # A release (IS_RELEASE) always takes the version from its tag, so the git
+      # tag is the single source of truth for a release's version; the manual
+      # input only applies to build-only runs.
+      #
+      # `latest` goes to a release only if its major equals LATEST_MAJOR *as
+      # currently set on the default branch*. Reading it from the tagged commit
+      # would let a re-run of an older release (whose workflow still names itself
+      # as newest) move `latest` backwards. Fails closed if it can't be read.
       - name: Determine PostgreSQL major version
         id: pgver
         env:
           REF_TYPE: ${{ github.ref_type }}
           REF_NAME: ${{ github.ref_name }}
           INPUT_VERSION: ${{ github.event.inputs.pg_version }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ -n "$INPUT_VERSION" ]; then
+          set -euo pipefail
+          if [ "$IS_RELEASE" != "true" ] && [ -n "$INPUT_VERSION" ]; then
             major="$INPUT_VERSION"
           elif [ "$REF_TYPE" = "tag" ]; then
             major="${REF_NAME#v}"   # v14.0.1 -> 14.0.1
@@ -97,17 +114,30 @@ jobs:
           case "$major" in
             ''|*[!0-9]*) echo "::error::invalid PostgreSQL major version: '$major'"; exit 1 ;;
           esac
+          is_latest=false
+          if [ "$IS_RELEASE" = "true" ]; then
+            current_latest="$(gh api "repos/${GITHUB_REPOSITORY}/contents/.github/workflows/docker-publish.yml?ref=${DEFAULT_BRANCH}" \
+              -H "Accept: application/vnd.github.raw" \
+              | sed -n 's/^  LATEST_MAJOR: *"\([0-9][0-9]*\)".*$/\1/p')"
+            if [ -z "$current_latest" ]; then
+              echo "::error::could not read LATEST_MAJOR from ${DEFAULT_BRANCH}"
+              exit 1
+            fi
+            echo "Newest PostgreSQL major per ${DEFAULT_BRANCH}: ${current_latest}"
+            if [ "$major" = "$current_latest" ]; then is_latest=true; fi
+          fi
           echo "major=${major}" >> "$GITHUB_OUTPUT"
-          echo "Building PostgreSQL major version: ${major}"
+          echo "is_latest=${is_latest}" >> "$GITHUB_OUTPUT"
+          echo "Building PostgreSQL major version: ${major} (release: ${IS_RELEASE}, latest: ${is_latest})"
 
-      # Install the cosign tool except on PR
+      # Install the cosign tool (releases only)
       # https://github.com/sigstore/cosign-installer
       # Pinned to v3 (cosign v2.x) so we get the current Sigstore TUF root.
       # The old v2.8.1 installer shipped cosign v1.13.1, which embeds a
       # rotated-out TUF key and fails Fulcio cert verification with
       # "updating to TUF remote mirror: invalid key".
       - name: Install cosign
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
+        if: ${{ env.IS_RELEASE == 'true' }}
         uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6  # v4.1.2
 
       - name: Set up QEMU
@@ -154,8 +184,8 @@ jobs:
             type=ref,event=branch
             type=ref,event=pr
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ github.ref_type == 'tag' && steps.pgver.outputs.major == env.LATEST_MAJOR }}
-      # Build and push Docker image with Buildx (don't push on PR)
+            type=raw,value=latest,enable=${{ steps.pgver.outputs.is_latest == 'true' }}
+      # Build and push Docker image with Buildx (push on releases only)
       # https://github.com/docker/build-push-action
       - name: Build and push Docker image
         id: build-and-push
@@ -164,7 +194,7 @@ jobs:
           context: .
           build-args: |
             PG_VERSION=${{ steps.pgver.outputs.major }}
-          push: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
+          push: ${{ env.IS_RELEASE == 'true' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           platforms: linux/amd64,linux/arm64
@@ -172,13 +202,13 @@ jobs:
           cache-to: type=gha,mode=max
 
 
-      # Sign the resulting Docker image digest except on PRs.
+      # Sign the resulting Docker image digest (releases only).
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
-        if: ${{ startsWith(github.ref, 'refs/tags/v') && github.event_name != 'pull_request' }}
+        if: ${{ env.IS_RELEASE == 'true' }}
         # cosign v2 keyless signing uses the GHA OIDC token automatically
         # (no COSIGN_EXPERIMENTAL needed). --yes skips v2's interactive
         # confirmation prompt, which would otherwise hang in CI.
